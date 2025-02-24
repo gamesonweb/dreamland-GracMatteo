@@ -12,6 +12,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 
     async init() {
+        
         this.createScene();
         this.addCamera();
     
@@ -36,6 +37,10 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
     
     start() {
         this.engine.runRenderLoop(() => {
+            // on peut charger de nouveaux assets ici avant de rendre la scene
+            //loadNewAssets();
+            //mettre a jour la physique avant le rendue pour bien checker les collisions
+            //updatephysics();
             this.scene.render();
         });
     }
