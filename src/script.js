@@ -1,7 +1,5 @@
 import Game from "./game/Game.js";
-
-// Bonne pratique : avoir une fonction appelée une fois
-// que la page est prête, que le DOM est chargé, etc.
+import '@babylonjs/loaders/glTF';
 
 async function init() {
     let canvas = document.querySelector("canvas");
@@ -15,5 +13,5 @@ async function init() {
     game.start();
 }
 
-
-window.addEventListener("DOMContentLoaded", init());
+init();
+//window.addEventListener("DOMContentLoaded", init());
