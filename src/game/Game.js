@@ -35,7 +35,30 @@ export default class Game {
         // Create a basic light, aiming 0,1,0 - meaning, to the sky
         this.light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene);
         this.ground = new BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, this.scene);
+        
+        
         // Create a camera (e.g., an ArcRotateCamera)
+        // Create the box without the collision property in the options
+        var box = BABYLON.MeshBuilder.CreateBox("box", {
+            width: 2,
+            height: 2,
+            depth: 2,
+        }, this.scene);
+
+        // Enable collision detection on the created mesh
+        box.checkCollisions = true;
+        box.position = new BABYLON.Vector3(4, 3, 4);
+        
+        
+        var box2 = BABYLON.MeshBuilder.CreateBox("box", {
+            width: 2,
+            height: 2,
+            depth: 2,
+        }, this.scene);
+        box2.checkCollisions = true;
+        box2.position = new BABYLON.Vector3(0, 0, 4);
+        
+        // Create a camera
         this.camera = new BABYLON.ArcRotateCamera(
           "camera",
           Math.PI / 2,

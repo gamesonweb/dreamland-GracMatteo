@@ -1,91 +1,78 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy';
-import '@babylonjs/loaders/glTF';
-//import PlayerInput from './PlayerInput.js';
+import * as BABYLON from "@babylonjs/core/Legacy/legacy";
+import "@babylonjs/loaders/glTF";
+import MovementRelative from "./MovementRelative";
 
 export default class Player {
-    constructor(scene, camera, inputs) {
-      this.scene = scene;
-      this.camera = camera;
-      this.inputs = inputs;
-      
-      // Création du mesh du joueur (ici une sphère)
-      //this.mesh = BABYLON.MeshBuilder.CreateSphere("player", { diameter: 2 }, scene);
-      BABYLON.SceneLoader.ImportMeshAsync("", "./src/game/assets/", "angryAntoine.glb", this.scene)
-    .then((result) => {
-        this.mesh = result.meshes[0];
-        this.mesh.scaling = new BABYLON.Vector3(1,1,1);
-        this.mesh.position = new BABYLON.Vector3(0, 1, 0);
-        this.mesh.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
-    })
-    .catch((error) => {
-        console.error("Erreur lors de l'importation du mesh :", error);
-    });
+  constructor(scene, camera, inputs) {
+    this.scene = scene;
+    this.camera = camera;
+    this.inputs = inputs;
+    this.mesh = null;
+    this.movementPlayer = null;
+    this.hitbox = null; 
 
-      
-    
-      // Position initiale (y = 1 pour toucher le sol)
-      //this.mesh.position.y = 1;
-      //this.mesh.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
-      
-      // Variables pour le saut
-      this.jumpVelocity = 0;
-      this.gravity = -0.03;
+    BABYLON.SceneLoader.ImportMeshAsync("", "./src/game/assets/", "angryAntoine.glb", this.scene)
+      .then((result) => {
+        this.mesh = result.meshes[0];
+        this.mesh.scaling = new BABYLON.Vector3(1, 1, 1);
+        // Rotation initiale si besoin
+        this.mesh.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
+
+        // -- (1) Forcer la mise à jour du bounding box --
+        this.mesh.computeWorldMatrix(true);
+
+        // -- (2) Récupérer le bas du bounding box (minimum.y) --
+        const boundingBox = this.mesh.getBoundingInfo().boundingBox;
+        const minY = boundingBox.minimum.y;
+
+        // -- (3) Déplacer le pivot pour qu’il soit au niveau des pieds --
+        //  Autrement dit, on décale le pivot de minY (qui est négatif ou positif selon le modèle).
+        this.mesh.setPivotPoint(new BABYLON.Vector3(0, minY, 0));
+
+        // -- (4) Placer le mesh pour que les pieds soient sur le sol --
+        //  Si le sol est à y=0, vous pouvez mettre :
+        this.mesh.position.y = 0;
+
+        // Vous pouvez ajuster si votre sol est à une autre altitude
+        // this.mesh.position.y = 1; // par exemple, si vous voulez qu’il soit à y=1
+
+        // -- (5) Créer la hitbox (optionnel, selon vos besoins) --
+        const constantWidth = 0.5;
+        const constantHeight = 0.8;
+        const constantDepth = 0.4;
+        const center = boundingBox.center; // souvent (0,0,0) après le pivot, mais à vérifier
+
+        this.hitbox = BABYLON.MeshBuilder.CreateBox("hitbox", {
+          width: constantWidth,
+          height: constantHeight,
+          depth: constantDepth
+        }, this.scene);
+        this.hitbox.position = center.clone();
+        this.hitbox.parent = this.mesh;
+        this.hitbox.checkCollisions = true;
+        this.hitbox.isVisible = false;
+
+        // Matériau wireframe pour afficher uniquement les arêtes
+        const hitboxMaterial = new BABYLON.StandardMaterial("hitboxMat", this.scene);
+        hitboxMaterial.wireframe = true;
+        this.hitbox.material = hitboxMaterial;
+
+        // -- (6) Instancier MovementRelative en lui passant la hitbox si nécessaire --
+        this.movementPlayer = new MovementRelative(
+          this.mesh,
+          this.camera,
+          this.hitbox,
+          this.inputs
+        );
+      })
+      .catch((error) => {
+        console.error("Erreur lors de l'importation du mesh :", error);
+      });
+  }
+  
+  update() {
+    if (this.movementPlayer) {
+      this.movementPlayer.calculMovemente();
     }
-    
-    update() {
-        if (!this.mesh) return;
-        const step = 0.15;
-      // Calcul du vecteur forward à partir de la caméra
-      let forward = this.camera.target.subtract(this.camera.position);
-      forward.y = 0;
-      forward = BABYLON.Vector3.Normalize(forward);
-      
-      // Vecteur pour accumuler les directions de déplacement
-      let moveDirection = BABYLON.Vector3.Zero();
-      if (this.inputs.isKeyPressed("z")) {
-        moveDirection = moveDirection.add(forward);
-        console.log("z" + moveDirection);
-      }
-      if (this.inputs.isKeyPressed("s")) {
-        moveDirection = moveDirection.add(forward.scale(-1));
-        console.log("s" + moveDirection);
-      }
-      if (this.inputs.isKeyPressed("q")) {
-        let left = BABYLON.Vector3.Cross(forward, new BABYLON.Vector3(0, 1, 0));
-        left = BABYLON.Vector3.Normalize(left);
-        moveDirection = moveDirection.add(left);
-        console.log("q" + moveDirection);
-      }
-      if (this.inputs.isKeyPressed("d")) {
-        let right = BABYLON.Vector3.Cross(new BABYLON.Vector3(0, 1, 0), forward);
-        right = BABYLON.Vector3.Normalize(right);
-        moveDirection = moveDirection.add(right);
-        console.log("d" + moveDirection);
-      }
-      
-      // Appliquer le déplacement horizontal si une direction est indiquée
-      if (moveDirection.length() > 0) {
-        moveDirection = BABYLON.Vector3.Normalize(moveDirection);
-        this.mesh.position.addInPlace(moveDirection.scale(step));
-        const yaw = Math.atan2(moveDirection.x, moveDirection.z);
-        this.mesh.rotationQuaternion = BABYLON.Quaternion.FromEulerAngles(0, yaw, 0);
-      }
-      
-      // Gestion du saut : si la touche espace est pressée et que le joueur est au sol
-      if ((this.inputs.isKeyPressed(" ") || this.inputs.isKeyPressed("Space")) && this.mesh.position.y === 1) {
-        this.jumpVelocity = 0.5;
-      }
-      
-      // Appliquer la vélocité verticale et la gravité
-      this.mesh.position.y += this.jumpVelocity;
-      this.jumpVelocity += this.gravity;
-      // Si le joueur est en dessous du sol, le remettre au niveau du sol et réinitialiser la vélocité
-      if (this.mesh.position.y < 1) {
-        this.mesh.position.y = 1;
-        this.jumpVelocity = 0;
-      }
-      //console.log(this.mesh.position);
-      console.log(moveDirection)
-      this.camera.setTarget(this.mesh.position);
-    }
+  }
 }
