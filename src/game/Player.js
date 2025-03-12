@@ -10,7 +10,7 @@ export default class Player {
     this.mesh = null;
     this.movementPlayer = null;
     this.hitbox = null; 
-
+    this.shadowGenerator = null;
     BABYLON.SceneLoader.ImportMeshAsync("", "./src/game/assets/", "angryAntoine.glb", this.scene)
       .then((result) => {
         this.mesh = result.meshes[0];
@@ -18,8 +18,7 @@ export default class Player {
         // Rotation initiale si besoin
         this.mesh.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
 
-        // -- (1) Forcer la mise à jour du bounding box --
-        this.mesh.computeWorldMatrix(true);
+        
 
         // -- (2) Récupérer le bas du bounding box (minimum.y) --
         const boundingBox = this.mesh.getBoundingInfo().boundingBox;
@@ -31,7 +30,7 @@ export default class Player {
 
         // -- (4) Placer le mesh pour que les pieds soient sur le sol --
         //  Si le sol est à y=0, vous pouvez mettre :
-        this.mesh.position.y = 0;
+        this.mesh.position.y = 10;
 
         // Vous pouvez ajuster si votre sol est à une autre altitude
         // this.mesh.position.y = 1; // par exemple, si vous voulez qu’il soit à y=1
@@ -49,8 +48,7 @@ export default class Player {
         }, this.scene);
         this.hitbox.position = center.clone();
         this.hitbox.parent = this.mesh;
-        this.hitbox.checkCollisions = true;
-        this.hitbox.isVisible = false;
+        this.hitbox.isVisible = true;
 
         // Matériau wireframe pour afficher uniquement les arêtes
         const hitboxMaterial = new BABYLON.StandardMaterial("hitboxMat", this.scene);
@@ -64,6 +62,8 @@ export default class Player {
           this.hitbox,
           this.inputs
         );
+        //this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.camera);
+        //this.shadowGenerator.addShadowCaster(this.mesh);
       })
       .catch((error) => {
         console.error("Erreur lors de l'importation du mesh :", error);

@@ -42,7 +42,6 @@ export default class MovementRelative {
     }
   
     // --- Vérification spécifique des collisions vers le haut ---
-    // Si la direction de déplacement inclut une composante verticale positive, on vérifie également vers le haut.
     if (moveDirection.y > 0) {
       const upwardDirection = new BABYLON.Vector3(0, 1, 0);
       const upwardRay = new BABYLON.Ray(rayOrigin, upwardDirection, displacementLength);
@@ -62,8 +61,29 @@ export default class MovementRelative {
     return false;
   }
   
+  /**
+   * Vérifie les collisions latérales en lançant un raycast dans la direction donnée (gauche ou droite).
+   * Si une collision est détectée, repositionne le mesh pour éviter l'intersection.
+   */
+  checkSideCollision(sideDirection, displacementLength) {
+    sideDirection = BABYLON.Vector3.Normalize(sideDirection);
+    const rayOrigin = this.hitbox.getAbsolutePosition();
+    const ray = new BABYLON.Ray(rayOrigin, sideDirection, displacementLength);
+    const hit = this.mesh.getScene().pickWithRay(ray, (m) => {
+      return m !== this.mesh && m !== this.hitbox && m.checkCollisions;
+    });
+    if (hit.hit && hit.distance < displacementLength) {
+      const safeOffset = 0.1;
+      const offsetVec = this.hitbox.getAbsolutePosition().subtract(this.mesh.position);
+      const newPos = hit.pickedPoint
+        .subtract(sideDirection.scale(safeOffset))
+        .subtract(offsetVec);
+      this.mesh.position.copyFrom(newPos);
+      return true;
+    }
+    return false;
+  }
   
-
   calculMovemente() {
     if (!this.mesh) return;
     const step = 0.15;
@@ -81,11 +101,13 @@ export default class MovementRelative {
       moveDirection = moveDirection.add(forward.scale(-1));
     }
     if (this.inputs.isKeyPressed("q")) {
+      // Calcul du vecteur gauche
       let left = BABYLON.Vector3.Cross(forward, new BABYLON.Vector3(0, 1, 0));
       left = BABYLON.Vector3.Normalize(left);
       moveDirection = moveDirection.add(left);
     }
     if (this.inputs.isKeyPressed("d")) {
+      // Calcul du vecteur droit
       let right = BABYLON.Vector3.Cross(new BABYLON.Vector3(0, 1, 0), forward);
       right = BABYLON.Vector3.Normalize(right);
       moveDirection = moveDirection.add(right);
@@ -156,14 +178,27 @@ export default class MovementRelative {
       this.mesh.position.y = ceilingHeight;
       this.jumpVelocity = 0;
     }
+
+    // --- 7) Vérification des collisions latérales ---
+    // On vérifie séparément si le personnage heurte un obstacle sur sa gauche ou sa droite
+    if (this.inputs.isKeyPressed("q")) {
+      let left = BABYLON.Vector3.Cross(forward, new BABYLON.Vector3(0, 1, 0));
+      left = BABYLON.Vector3.Normalize(left);
+      this.checkSideCollision(left, step);
+    }
+    if (this.inputs.isKeyPressed("d")) {
+      let right = BABYLON.Vector3.Cross(new BABYLON.Vector3(0, 1, 0), forward);
+      right = BABYLON.Vector3.Normalize(right);
+      this.checkSideCollision(right, step);
+    }
     
-    // --- 7) Mise à jour de la caméra ---
+    // --- 8) Mise à jour de la caméra ---
     this.camera.setTarget(this.mesh.position);
   }
   
 
   /**
-   * Effectue un raycast vertical pour détecter le sol (objet nommé "ground").
+   * Effectue un raycast vertical pour détecter le sol (objet nommé "ground" ou "box").
    * Retourne la hauteur Y du sol plus un offset si trouvé, sinon null.
    */
   getGroundHeight() {
@@ -175,7 +210,6 @@ export default class MovementRelative {
     const hit = this.mesh.getScene().pickWithRay(ray, (m) => m.name === "ground" || m.name === "box");
     if (hit.hit && hit.pickedPoint) {
       console.log("Point d'impact du raycast:", hit.pickedPoint);
-      // On peut ajuster l'offset ici si nécessaire (exemple: +0.5)
       return hit.pickedPoint.y + 0.5;
     }
     return null;
@@ -187,13 +221,11 @@ export default class MovementRelative {
       new BABYLON.Vector3(0, 1, 0),
       100
     );
-    const hit = this.mesh.getScene().pickWithRay(ray, (m) => m.name === "ceiling" || m.name === "box");
+    const hit = this.mesh.getScene().pickWithRay(ray, (m) => m.name === "ceiling" || m.name === "box" || m.name === "ground");
     if (hit.hit && hit.pickedPoint) {
       console.log("Point d'impact du raycast vers le haut:", hit.pickedPoint);
-      // On soustrait un offset pour éviter que le mesh ne pénètre dans le plafond (ici, 0.5)
       return hit.pickedPoint.y - 0.5;
     }
     return null;
   }
-  
 }
