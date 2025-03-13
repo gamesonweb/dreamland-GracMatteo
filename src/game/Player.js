@@ -2,6 +2,8 @@ import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 import "@babylonjs/loaders/glTF";
 import MovementRelative from "./MovementRelative";
 
+
+
 export default class Player {
   constructor(scene, camera, inputs) {
     this.scene = scene;
@@ -11,7 +13,8 @@ export default class Player {
     this.movementPlayer = null;
     this.hitbox = null; 
     this.shadowGenerator = null;
-    BABYLON.SceneLoader.ImportMeshAsync("", "./src/game/assets/", "angryAntoine.glb", this.scene)
+    var pathPlayer = "./src/game/assets/";
+    BABYLON.SceneLoader.ImportMeshAsync("", pathPlayer, "angryAntoine.glb", this.scene)
       .then((result) => {
         this.mesh = result.meshes[0];
         this.mesh.scaling = new BABYLON.Vector3(1, 1, 1);
