@@ -2,7 +2,8 @@ import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCam
 import {GridMaterial} from "@babylonjs/materials"
 import Player from './Player.js';
 
-//import { MeshBuilder } from 'babylonjs/loaders';
+
+var DEBUG_MODE = true;
 
 export default class Game {
     
@@ -54,7 +55,8 @@ export default class Game {
     }
     
     update(delta){
-        console.log("inputMap in Update of Game :"+this.inputMap)
+        //console.log("inputMap in Update of Game :"+this.inputMap)
+        
         //rajouter les updates de toutes les entités
         this.player.update(delta,this.inputMap,this.actions);
         this.startTimer += delta;
@@ -73,12 +75,16 @@ export default class Game {
         
         //ground grid pour debug
         var ground = MeshBuilder.CreateGround("ground", {width: 6, height: 6});
+        var groundMaterial = new StandardMaterial("groundMaterial");
+        groundMaterial.diffuseColor = new Color3( 0, 0, 1);
+        ground.material = groundMaterial
+        if (DEBUG_MODE){
+            this.axesWorld = new AxesViewer(this.scene, 4);
+            var groundMaterial = new GridMaterial("groundMaterial");
+            groundMaterial.diffuseColor = new Color3(0, 0, 1);
+            ground.material = groundMaterial;    
+        }
         
-        var groundMaterial = new GridMaterial("groundMaterial");
-        groundMaterial.diffuseColor = new Color3(0, 0, 1);
-        ground.material = groundMaterial;
-
-        this.axesWorld = new AxesViewer(this.scene, 4);
     }
 
     //a mettre dans un autre fichier
@@ -101,3 +107,4 @@ export default class Game {
 
 
 }
+export {DEBUG_MODE}
