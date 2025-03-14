@@ -30,8 +30,8 @@ export default class Game {
     async init() {
         this.engine.displayLoadingUI();
         await this.createScene();
-        this.player = new Player(this.camera,this.scene);   
         this.initKeyboard();
+        this.player = new Player(this.camera,this.scene);   
         this.engine.hideLoadingUI();
     }
 
@@ -43,7 +43,7 @@ export default class Game {
         this.engine.runRenderLoop(() => {
 
              let DELTA_TIME = this.engine.getDeltaTime() / 1000.0
-             
+             //console.log("delta time : "+DELTA_TIME )
              this.update(DELTA_TIME);
             
              
@@ -54,9 +54,9 @@ export default class Game {
     }
     
     update(delta){
-
+        console.log("inputMap in Update of Game :"+this.inputMap)
         //rajouter les updates de toutes les entités
-        this.player.update(delta);
+        this.player.update(delta,this.inputMap,this.actions);
         this.startTimer += delta;
     }
 
@@ -87,7 +87,8 @@ export default class Game {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
                     this.inputMap[kbInfo.event.code] = true;
-                    //console.log("keyDOWN"+kbInfo.event.code);
+                    //console.log("keyDOWN"+this.inputMap);
+                    break;
                 case KeyboardEventTypes.KEYUP :
                     this.inputMap[kbInfo.event.code] = false;
                     this.actions[kbInfo.event.code] = true;

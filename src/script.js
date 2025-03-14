@@ -13,7 +13,6 @@ window.onload = () => {
     })
 
     game = new Game(engine, canvas);
-    game.init();
     game.start();
 
 };

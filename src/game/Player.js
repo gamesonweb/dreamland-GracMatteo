@@ -1,7 +1,7 @@
 import {Vector3,AxesViewer,MeshBuilder,StandardMaterial,Color3} from '@babylonjs/core';
 import {} from '@babylonjs/loaders/glTF';
 
-
+const SPEED_X = 5;
 //import MeshUrl from './src/game/assets/angryAntoine.glb';
 
 class Player{
@@ -36,13 +36,24 @@ class Player{
   
   }
 
-  update(delta){
-    this.getInputs();
+  update(delta ,inputMap, actions){
+    //console.log("input in update :"+inputMap)
+    this.getInputs(delta,inputMap,actions);
+    //console.log("delta time ="+delta)
     this.move();
   }
 
-  getInputs(){
+  getInputs(delta,inputMap,actions){
+    //console.log("inputmap in getInput :"+inputMap);
+    if(inputMap["KeyA"]){
+      this.mesh.position.x -= SPEED_X * delta
+      //consol.log("mesh position X :"+ this.mesh.position.x) 
+    }
     
+    if (inputMap["KeyD"]){
+      this.mesh.position.x += SPEED_X * delta
+    }
+
   }
 
   move(){
