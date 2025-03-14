@@ -1,5 +1,8 @@
 import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3} from '@babylonjs/core';
-import {GridMaterial} from "@babylonjs/materials"
+import {GridMaterial} from "@babylonjs/materials";
+import {Inspector} from "@babylonjs/inspector";
+
+
 import Player from './Player.js';
 
 
@@ -32,13 +35,17 @@ export default class Game {
         this.engine.displayLoadingUI();
         await this.createScene();
         this.initKeyboard();
-        this.player = new Player(this.camera,this.scene);   
+        this.player = new Player(this.scene);   
         this.engine.hideLoadingUI();
     }
 
     async start() {
         
         await this.init();
+        
+        if(DEBUG_MODE){
+            Inspector.Show(this.scene,{});
+        }
         
         this.startTimer = 0;
         this.engine.runRenderLoop(() => {
@@ -68,8 +75,11 @@ export default class Game {
         this.scene.clearColor = new Color4(0,0,0,0);
         this.scene.collisionsEnabled = true;
         
-        this.camera = new FreeCamera("camera", new Vector3(0, 5, -10), this.scene);
-        this.camera.attachControl(this.canvas, true);
+
+        //faire un cameraManager
+
+        //this.camera = new FreeCamera("camera", new Vector3(0, 5, -10), this.scene);
+        //this.camera.attachControl(this.canvas, true);
         
         this.light = new HemisphericLight("light", new Vector3(0, 1, 0), this.scene);
         
