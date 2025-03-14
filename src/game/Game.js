@@ -1,6 +1,8 @@
-import {GridMaterial,AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3} from '@babylonjs/core';
+import {GridMaterial} from "@babylonjs/materials"
 import Player from './Player.js';
-//import { MeshBuilder } from 'babylonjs';
+
+//import { MeshBuilder } from 'babylonjs/loaders';
 
 export default class Game {
     
@@ -45,7 +47,6 @@ export default class Game {
              this.update(DELTA_TIME);
             
              
-
              this.actions = {};
              this.scene.render(); 
             
@@ -72,7 +73,8 @@ export default class Game {
         
         //ground grid pour debug
         var ground = MeshBuilder.CreateGround("ground", {width: 6, height: 6});
-        var groundMaterial = new GridMaterial("groundMaterial", this.scene);
+        
+        var groundMaterial = new GridMaterial("groundMaterial");
         groundMaterial.diffuseColor = new Color3(0, 0, 1);
         ground.material = groundMaterial;
 
