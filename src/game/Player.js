@@ -68,6 +68,15 @@ export default class Player {
       .catch((error) => {
         console.error("Erreur lors de l'importation du mesh :", error);
       });
+      //marche pas reste au point de départ
+      let axes = new BABYLON.Debug.AxesViewer(this.scene);
+      axes.xAxis.isVisible = true;
+      axes.yAxis.isVisible = true;
+      axes.zAxis.isVisible = true;
+      axes.xAxis.parent = this.mesh;
+      axes.yAxis.parent = this.mesh;
+      axes.zAxis.parent = this.mesh;
+      //
   }
   
   update() {

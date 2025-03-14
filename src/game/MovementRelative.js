@@ -191,7 +191,7 @@ export default class MovementRelative {
       right = BABYLON.Vector3.Normalize(right);
       this.checkSideCollision(right, step);
     }
-    
+      
     // --- 8) Mise à jour de la caméra ---
     this.camera.setTarget(this.mesh.position);
   }
