@@ -1,5 +1,5 @@
 import Game from "./game/Game.js";
-import {Engine} from '@babylonjs/loaders/glTF';
+import {Engine} from '@babylonjs/core';
 
 let engine;
 let canvas;
