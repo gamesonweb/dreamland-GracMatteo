@@ -1,14 +1,19 @@
 import {Vector3,AxesViewer,MeshBuilder,StandardMaterial,Color3} from '@babylonjs/core';
-import {} from '@babylonjs/loaders/glTF';
+
+import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
+import '@babylonjs/loaders';  // This registers all additional loaders like GLTF, OBJ, etc.
 
 
 import {getForwardVector, getRightVector} from "./getDirectionMesh.js";
-
+import {ArcRotateCamera} from "babylonjs"
 import {DEBUG_MODE} from "./Game.js"
-import { ArcRotateCamera } from 'babylonjs';
+
+//import { SceneLoader } from '@babylonjs/Loading/sceneLoader';
 
 const SPEED = 5;
-//import MeshUrl from './src/game/assets/angryAntoine.glb';
+
+const pathPlayerGLB = "../game/assets";
+const PlayerGLB = "angryAntoine.glb"; 
 
 class Player{
   
@@ -38,6 +43,11 @@ class Player{
     this.mesh.material.diffuseColor = new Color3(0 , 1, 0);  
     this.mesh.position = new Vector3(3, 0.5, 3);
     
+    //const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,this.scene);
+    //this.mesh = result.meshes[0];
+    //this.mesh.position = new Vector3(1, 1, 1);
+    
+
     this.camera = new ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
@@ -49,7 +59,7 @@ class Player{
     // Activer les contrôles de la caméra avec la souris
     this.camera.attachControl(this.scene.getEngine().getRenderingCanvas(), true);
 
-
+    
 
     this.applyCameraToInput();
     //this.camera.setTarget(this.mesh.position);
@@ -128,9 +138,14 @@ class Player{
 
   move(delta){
     
+    if (!this.mesh) return;
     //check si il y a un vecteur d'input 
     if(this.moveDirection.length() != 0){
       
+      //permet de positionner le mesh dans la direction calculer
+      this.mesh.lookAt(this.mesh.position.add(this.moveDirection));
+
+      //permet d'appliquer la translation
       this.moveDirection.scaleInPlace(SPEED * delta);
       
       this.mesh.position.addInPlace(this.moveDirection);

@@ -36,6 +36,7 @@ export default class Game {
         await this.createScene();
         this.initKeyboard();
         this.player = new Player(this.scene);   
+        //this.player.init();
         this.engine.hideLoadingUI();
     }
 
@@ -46,7 +47,7 @@ export default class Game {
         if(DEBUG_MODE){
             Inspector.Show(this.scene,{});
         }
-        
+
         this.startTimer = 0;
         this.engine.runRenderLoop(() => {
 
@@ -77,19 +78,21 @@ export default class Game {
         
 
         //faire un cameraManager
-
+        
         //this.camera = new FreeCamera("camera", new Vector3(0, 5, -10), this.scene);
         //this.camera.attachControl(this.canvas, true);
         
-        this.light = new HemisphericLight("light", new Vector3(0, 1, 0), this.scene);
+        this.light = new HemisphericLight("light", new Vector3(0, 0.8, 0), this.scene);
         
-        //ground grid pour debug
+        
         var ground = MeshBuilder.CreateGround("ground", {width: 6, height: 6});
         var groundMaterial = new StandardMaterial("groundMaterial");
         groundMaterial.diffuseColor = new Color3( 0, 0, 1);
         ground.material = groundMaterial
         if (DEBUG_MODE){
+            
             this.axesWorld = new AxesViewer(this.scene, 4);
+            //ground grid pour debug
             var groundMaterial = new GridMaterial("groundMaterial");
             groundMaterial.diffuseColor = new Color3(0, 0, 1);
             ground.material = groundMaterial;    
