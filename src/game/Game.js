@@ -36,7 +36,7 @@ export default class Game {
         await this.createScene();
         this.initKeyboard();
         this.player = new Player(this.scene);   
-        //this.player.init();
+        await this.player.init();
         this.engine.hideLoadingUI();
     }
 

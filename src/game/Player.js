@@ -12,7 +12,7 @@ import {DEBUG_MODE} from "./Game.js"
 
 const SPEED = 5;
 const SPEED_ROTATION = 5;
-const pathPlayerGLB = "../game/assets";
+const pathPlayerGLB = "./src/game/assets/";
 const PlayerGLB = "angryAntoine.glb"; 
 
 class Player{
@@ -34,31 +34,41 @@ class Player{
   constructor(scene){
     this.scene = scene;
 
-    this.init();
+    //this.init();
   }
 
-  init(){
+  async init(){
     
     //mesh player
-    this.mesh = MeshBuilder.CreateBox("playerMesh", {size: 1});
-    this.mesh.material = new StandardMaterial("playerMaterial", this.scene);
-    this.mesh.material.diffuseColor = new Color3(0 , 1, 0);  
-    this.mesh.position = new Vector3(3, 0.5, 3);
+    //this.mesh = MeshBuilder.CreateBox("playerMesh", {size: 1});
+    //this.mesh.material = new StandardMaterial("playerMaterial", this.scene);
+    //this.mesh.material.diffuseColor = new Color3(0 , 1, 0);  
+    //this.mesh.position = new Vector3(3, 0.5, 3);
     
+    
+    const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,this.scene);
+    this.mesh = result.meshes[0];
+    this.mesh.position = new Vector3(1, 0.5, 1);
+    //this.mesh.rotation = new Vector3(0,Math.PI,0);
     this.mesh.rotationQuaternion = Quaternion.Identity();
-    //const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,this.scene);
-    //this.mesh = result.meshes[0];
-    //this.mesh.position = new Vector3(1, 1, 1);
     
-
-    this.camera = new ArcRotateCamera("playerCamera",
+    let camera = new ArcRotateCamera("playerCamera",
+      -Math.PI/2,       
+      3*Math.PI/10,       
+      10,                
+      this.mesh.positsion, 
+      this.scene
+    );
+    this.camera = camera;
+    /*
+    this.camera = ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
       10,                
       this.mesh.position, 
       this.scene
     );
-
+    */
     // Activer les contrôles de la caméra avec la souris
     this.camera.attachControl(this.scene.getEngine().getRenderingCanvas(), true);
 
@@ -135,7 +145,7 @@ class Player{
       //normaliser
       right.normalize();
       right.scaleInPlace(this.moveInput.x);
-      
+      //essai de mettre un saut
       let up = getUpVector(this.camera,true)
 
       //add les 2 vecteurs
@@ -143,7 +153,7 @@ class Player{
       this.moveDirection.normalize();
 
       Quaternion.FromLookDirectionLHToRef(
-        this.moveDirection.negate(), //utilisation de negate car on utilise un repere Droitié alors que la fct utilise un reperer gauché
+        this.moveDirection, //utilisation de negate car on utilise un repere Droitié alors que la fct utilise un reperer gauché
         Vector3.UpReadOnly,
         this.lookDirectionQuaternion)
       }  
@@ -158,7 +168,7 @@ class Player{
       //permet de positionner le mesh dans la direction calculer
       //this.mesh.lookAt(this.mesh.position.add(this.moveDirection));
 
-      //permet de positionner le mesh dans la bonne direction avec 
+      //permet de positionner le mesh dans la bonne direction  
       Quaternion.SlerpToRef(this.mesh.rotationQuaternion ,this.lookDirectionQuaternion,SPEED_ROTATION * delta, this.mesh.rotationQuaternion)
       //permet d'appliquer la translation
       this.moveDirection.scaleInPlace(SPEED * delta);
@@ -166,6 +176,7 @@ class Player{
       this.mesh.position.addInPlace(this.moveDirection);
     
     }
+    //permet de suivre le Player
     this.camera.target = this.mesh.position;
   }
 
