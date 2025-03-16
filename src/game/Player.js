@@ -4,14 +4,14 @@ import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders';  // This registers all additional loaders like GLTF, OBJ, etc.
 
 
-import {getForwardVector, getRightVector} from "./getDirectionMesh.js";
-import {ArcRotateCamera} from "babylonjs"
+import {getForwardVector, getRightVector,getUpVector} from "./getDirectionMesh.js";
+import {ArcRotateCamera, Quaternion} from "babylonjs"
 import {DEBUG_MODE} from "./Game.js"
 
 //import { SceneLoader } from '@babylonjs/Loading/sceneLoader';
 
 const SPEED = 5;
-
+const SPEED_ROTATION = 5;
 const pathPlayerGLB = "../game/assets";
 const PlayerGLB = "angryAntoine.glb"; 
 
@@ -20,7 +20,7 @@ class Player{
   mesh;
   shadow;
   
-  cene;
+  scene;
   camera;
   axies;
 
@@ -28,6 +28,8 @@ class Player{
   moveInput = new Vector3(0,0,0);
   //vecteur de déplacement 
   moveDirection = new Vector3(0,0,0);
+
+  lookDirectionQuaternion = new Quaternion.Identity();
 
   constructor(scene){
     this.scene = scene;
@@ -43,6 +45,7 @@ class Player{
     this.mesh.material.diffuseColor = new Color3(0 , 1, 0);  
     this.mesh.position = new Vector3(3, 0.5, 3);
     
+    this.mesh.rotationQuaternion = Quaternion.Identity();
     //const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,this.scene);
     //this.mesh = result.meshes[0];
     //this.mesh.position = new Vector3(1, 1, 1);
@@ -105,6 +108,10 @@ class Player{
       this.moveInput.z = -1;
     }
     
+    if(inputMap[" "]){
+      this.moveInput.y = 1;
+    }
+
   }
 
   applyCameraToInput(){
@@ -129,11 +136,17 @@ class Player{
       right.normalize();
       right.scaleInPlace(this.moveInput.x);
       
+      let up = getUpVector(this.camera,true)
+
       //add les 2 vecteurs
       this.moveDirection = right.add(forward);
       this.moveDirection.normalize();
 
-    }  
+      Quaternion.FromLookDirectionLHToRef(
+        this.moveDirection.negate(), //utilisation de negate car on utilise un repere Droitié alors que la fct utilise un reperer gauché
+        Vector3.UpReadOnly,
+        this.lookDirectionQuaternion)
+      }  
   }
 
   move(delta){
@@ -143,8 +156,10 @@ class Player{
     if(this.moveDirection.length() != 0){
       
       //permet de positionner le mesh dans la direction calculer
-      this.mesh.lookAt(this.mesh.position.add(this.moveDirection));
+      //this.mesh.lookAt(this.mesh.position.add(this.moveDirection));
 
+      //permet de positionner le mesh dans la bonne direction avec 
+      Quaternion.SlerpToRef(this.mesh.rotationQuaternion ,this.lookDirectionQuaternion,SPEED_ROTATION * delta, this.mesh.rotationQuaternion)
       //permet d'appliquer la translation
       this.moveDirection.scaleInPlace(SPEED * delta);
       

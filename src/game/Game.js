@@ -106,7 +106,7 @@ export default class Game {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
                     this.inputMap[kbInfo.event.code] = true;
-                    //console.log("keyDOWN"+this.inputMap);
+                    //console.log("keyDOWN"+kbInfo.event.code);
                     break;
                 case KeyboardEventTypes.KEYUP :
                     this.inputMap[kbInfo.event.code] = false;
