@@ -12,6 +12,7 @@ import {DEBUG_MODE} from "./Game.js"
 
 const SPEED = 5;
 const SPEED_ROTATION = 5;
+
 const pathPlayerGLB = "./src/game/assets/";
 const PlayerGLB = "angryAntoine.glb"; 
 
@@ -51,7 +52,7 @@ class Player{
     this.mesh.position = new Vector3(1, 0.5, 1);
     //this.mesh.rotation = new Vector3(0,Math.PI,0);
     this.mesh.rotationQuaternion = Quaternion.Identity();
-    
+    this.mesh
     let camera = new ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
@@ -145,6 +146,7 @@ class Player{
       //normaliser
       right.normalize();
       right.scaleInPlace(this.moveInput.x);
+      
       //essai de mettre un saut
       let up = getUpVector(this.camera,true)
 
@@ -153,7 +155,7 @@ class Player{
       this.moveDirection.normalize();
 
       Quaternion.FromLookDirectionLHToRef(
-        this.moveDirection, //utilisation de negate car on utilise un repere Droitié alors que la fct utilise un reperer gauché
+        this.moveDirection, 
         Vector3.UpReadOnly,
         this.lookDirectionQuaternion)
       }  

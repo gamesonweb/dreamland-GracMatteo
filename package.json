@@ -17,6 +17,7 @@
     "@babylonjs/inspector": "^7.53.2",
     "@babylonjs/loaders": "^7.50.0",
     "@babylonjs/materials": "^7.53.2",
+    "ammo.js": "^0.0.10",
     "babylonjs": "^7.52.2"
   }
 }

@@ -1,9 +1,11 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,AmmoJSPlugin} from '@babylonjs/core';
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
+import Ammo from 'ammo.js'; 
 
 import Player from './Player.js';
+import { GlobalManager } from './GlobalManager.js';
 
 
 var DEBUG_MODE = true;
@@ -13,7 +15,7 @@ export default class Game {
     engine;
     canvas;
     scene;
-    
+
     camera;
     light;
     axesWorld;
@@ -26,18 +28,21 @@ export default class Game {
     actions = {}
 
     constructor(engine,canvas) {
-        this.engine = engine;
-        this.canvas = canvas;
-        
+        GlobalManager.engine = engine;
+        GlobalManager.canvas = canvas;
+    
     }
 
     async init() {
-        this.engine.displayLoadingUI();
+        GlobalManager.engine.displayLoadingUI();
+        
+        
+        
         await this.createScene();
         this.initKeyboard();
-        this.player = new Player(this.scene);   
+        this.player = new Player(GlobalManager.scene);   
         await this.player.init();
-        this.engine.hideLoadingUI();
+        GlobalManager.engine.hideLoadingUI();
     }
 
     async start() {
@@ -45,19 +50,19 @@ export default class Game {
         await this.init();
         
         if(DEBUG_MODE){
-            Inspector.Show(this.scene,{});
+            Inspector.Show(GlobalManager.scene,{});
         }
 
         this.startTimer = 0;
-        this.engine.runRenderLoop(() => {
+        GlobalManager.engine.runRenderLoop(() => {
 
-             let DELTA_TIME = this.engine.getDeltaTime() / 1000.0
-             //console.log("delta time : "+DELTA_TIME )
-             this.update(DELTA_TIME);
+            GlobalManager.update();
+            //console.log("delta time : "+DELTA_TIME )
+            this.update(GlobalManager.deltaTime);
             
              
-             this.actions = {};
-             this.scene.render(); 
+            this.actions = {};
+            GlobalManager.scene.render(); 
             
         })
     }
@@ -72,17 +77,17 @@ export default class Game {
 
     async createScene() {
         
-        this.scene = new Scene(this.engine);
-        this.scene.clearColor = new Color4(0,0,0,0);
-        this.scene.collisionsEnabled = true;
-        
+        GlobalManager.scene = new Scene(GlobalManager.engine);
+        GlobalManager.scene.clearColor = new Color4(0,0,0,0);
+        //GlobalManager.scene.collisionsEnabled = true;
+        //GlobalManager.scene.enablePhysics(new Vector3(0, -10, 0), new AmmoJSPlugin(true, Ammo));
 
         //faire un cameraManager
         
-        //this.camera = new FreeCamera("camera", new Vector3(0, 5, -10), this.scene);
-        //this.camera.attachControl(this.canvas, true);
+        //GlobalManager.camera = new FreeCamera("camera", new Vector3(0, 5, -10), GlobalManager.scene);
+        //GlobalManager.camera.attachControl(GlobalManager.canvas, true);
         
-        this.light = new HemisphericLight("light", new Vector3(0, 0.8, 0), this.scene);
+        this.light = new HemisphericLight("light", new Vector3(0, 0.8, 0), GlobalManager.scene);
         
         
         var ground = MeshBuilder.CreateGround("ground", {width: 6, height: 6});
@@ -91,7 +96,7 @@ export default class Game {
         ground.material = groundMaterial
         if (DEBUG_MODE){
             
-            this.axesWorld = new AxesViewer(this.scene, 4);
+            this.axesWorld = new AxesViewer(GlobalManager.scene, 4);
             //ground grid pour debug
             var groundMaterial = new GridMaterial("groundMaterial");
             groundMaterial.diffuseColor = new Color3(0, 0, 1);
@@ -102,7 +107,7 @@ export default class Game {
 
     //a mettre dans un autre fichier
     initKeyboard(){
-        this.scene.onKeyboardObservable.add((kbInfo) => {
+        GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
                     this.inputMap[kbInfo.event.code] = true;
