@@ -114,6 +114,7 @@ export default class Game {
 
         // Create a directional light to simulate the sun
         this.sunLight = new DirectionalLight("sunLight", new Vector3(0, -10, 0), GlobalManager.scene);
+        this.sunLight.position = new Vector3(0, 10, 0);
         this.sunLight.intensity = 1;
         GlobalManager.addLight(this.sunLight);
         

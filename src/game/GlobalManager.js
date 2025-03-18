@@ -29,7 +29,8 @@ class GlobalManager {
    update(){
         this.deltaTime = this.engine.getDeltaTime() / 1000.0;
         // Update the sun's direction to simulate movement
-        this.lightTranslationSun();
+        this.lightRotation(0.01);
+        //this.lightTranslation();
         //GlobalManager.lightTranslation(); 
    }
 
@@ -48,10 +49,19 @@ class GlobalManager {
         this.lights.push(light);
    }
    
-   lightTranslationSun(){
-     this.sunAngle += 0.01 * this.deltaTime; // Adjust the speed of the sun's movement
+   removeLight(light){
+     this.lights.pop(light);        
+   }
+   lightRotation(angleRotation){
+     this.sunAngle += angleRotation * this.deltaTime; 
      const sunDirection = new Vector3(Math.sin(this.sunAngle), -Math.cos(this.sunAngle), 0);
      this.lights[0].direction = sunDirection;
+   }
+
+   lightTranslation(){
+     this.sunTranslation += 0.1 * this.deltaTime; 
+     const sunTranslation = new Vector3(this.sunTranslation,-10, 0);
+     this.lights[0].position = sunTranslation;
    }
 
 }
