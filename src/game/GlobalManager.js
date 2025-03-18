@@ -6,9 +6,10 @@ class GlobalManager {
     engine;
     canvas;
     scene;
-    camera = [];
-
-    shadowGenerator = [];
+    
+    camera = []; 
+    lights = [];
+    shadowGenerators = [];
 
     deltaTime;
     constructor() {
@@ -27,6 +28,21 @@ class GlobalManager {
 
    update(){
         this.deltaTime = this.engine.getDeltaTime() / 1000.0; 
+   }
+
+   addShadowGenerator(shadowGen){
+        this.shadowGenerators.push(shadowGen);
+   }
+
+   addShadowCaster(object,bChilds){
+        bChilds = bChilds || false;
+        for(let shad of this.shadowGenerators){
+            shad.addShadowCaster(object,bChilds);
+        }
+   }
+
+   addLight(light){
+        this.lights.push(light);
    }
 
 }

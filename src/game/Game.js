@@ -1,4 +1,4 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,AmmoJSPlugin} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator} from '@babylonjs/core';
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
@@ -6,9 +6,10 @@ import Ammo from 'ammo.js';
 
 import Player from './Player.js';
 import { GlobalManager } from './GlobalManager.js';
+import { DirectionalLight } from 'babylonjs';
 
 
-var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 
 export default class Game {
     
@@ -86,13 +87,26 @@ export default class Game {
         //GlobalManager.camera = new FreeCamera("camera", new Vector3(0, 5, -10), GlobalManager.scene);
         //GlobalManager.camera.attachControl(GlobalManager.canvas, true);
         
-        this.light = new HemisphericLight("light", new Vector3(0, 0.8, 0), GlobalManager.scene);
+        let light = new DirectionalLight("dirLight", new Vector3(3, -10, 0), GlobalManager.scene);
+        light.intensity = 0.7;
+        GlobalManager.addLight(light);
         
+
+        //marche pas du au meshChilds
         
+        let shadowGen = new ShadowGenerator(1024, GlobalManager.lights[0]);
+        shadowGen.useBlurExponentialShadowMap = true;
+        GlobalManager.addShadowGenerator(shadowGen);
+        
+
+
+
         var ground = MeshBuilder.CreateGround("ground", {width: 6, height: 6});
         var groundMaterial = new StandardMaterial("groundMaterial");
         groundMaterial.diffuseColor = new Color3( 0, 0, 1);
         ground.material = groundMaterial
+        ground.receiveShadows = true;
+        
         if (DEBUG_MODE){
             
             this.axesWorld = new AxesViewer(GlobalManager.scene, 4);
