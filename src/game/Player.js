@@ -63,6 +63,7 @@ class Player{
     
     
     GlobalManager.addShadowCaster(this.mesh,true);
+    
     /*
     GlobalManager.camera = ArcRotateCamera("playerCamera",
       -Math.PI/2,       

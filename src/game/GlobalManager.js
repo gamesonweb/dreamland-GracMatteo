@@ -27,7 +27,8 @@ class GlobalManager {
    }
 
    update(){
-        this.deltaTime = this.engine.getDeltaTime() / 1000.0; 
+        this.deltaTime = this.engine.getDeltaTime() / 1000.0;
+        //GlobalManager.lightTranslation(); 
    }
 
    addShadowGenerator(shadowGen){
@@ -44,7 +45,10 @@ class GlobalManager {
    addLight(light){
         this.lights.push(light);
    }
-
+   
+   lightTranslation(light,translation){
+          
+   }
 }
 
 const {instance} = GlobalManager;

@@ -1,4 +1,4 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap} from '@babylonjs/core';
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
@@ -73,6 +73,7 @@ export default class Game {
         //rajouter les updates de toutes les entités
         this.player.update(this.inputMap,this.actions);
         this.startTimer += GlobalManager.deltaTime;
+        //GlobalManager.lightTranslation();
     }
 
     async createScene() {
@@ -87,21 +88,28 @@ export default class Game {
         //GlobalManager.camera = new FreeCamera("camera", new Vector3(0, 5, -10), GlobalManager.scene);
         //GlobalManager.camera.attachControl(GlobalManager.canvas, true);
         
-        let light = new DirectionalLight("dirLight", new Vector3(3, -10, 0), GlobalManager.scene);
-        light.intensity = 0.7;
+        let light = new DirectionalLight("dirLight", new Vector3(6, -5, 0), GlobalManager.scene);
+        light.intensity = 1;
         GlobalManager.addLight(light);
-        
-
+        /*
+        let light2 = new DirectionalLight("dirLight2", new Vector3(0, -10, 0), GlobalManager.scene);
+        light2.intensity = 0.7;
+        GlobalManager.addLight(light2);
+        */
         //marche pas du au meshChilds
         
         let shadowGen = new ShadowGenerator(1024, GlobalManager.lights[0]);
         shadowGen.useBlurExponentialShadowMap = true;
         GlobalManager.addShadowGenerator(shadowGen);
+        /*
+        let shadowGen2 = new ShadowGenerator(1024, GlobalManager.lights[1]);
+        shadowGen2.useBlurExponentialShadowMap = true;
+        GlobalManager.addShadowGenerator(shadowGen2);
+        */
+
         
 
-
-
-        var ground = MeshBuilder.CreateGround("ground", {width: 6, height: 6});
+        var ground = MeshBuilder.CreateGround("ground", {width: 30, height: 30}, GlobalManager.scene);
         var groundMaterial = new StandardMaterial("groundMaterial");
         groundMaterial.diffuseColor = new Color3( 0, 0, 1);
         ground.material = groundMaterial
@@ -116,6 +124,10 @@ export default class Game {
             ground.material = groundMaterial;    
         }
         
+        let mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
+        mesh.position.y = 1;
+        GlobalManager.addShadowCaster(mesh, true);
+
     }
 
     //a mettre dans un autre fichier
