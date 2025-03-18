@@ -1,4 +1,4 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap, DirectionalLight} from '@babylonjs/core';
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
@@ -6,7 +6,6 @@ import Ammo from 'ammo.js';
 
 import Player from './Player.js';
 import { GlobalManager } from './GlobalManager.js';
-import { DirectionalLight } from 'babylonjs';
 
 
 var DEBUG_MODE = false;
@@ -27,6 +26,9 @@ export default class Game {
     
     inputMap = {};
     actions = {}
+
+    sunLight;
+    sunAngle = 0;
 
     constructor(engine,canvas) {
         GlobalManager.engine = engine;
@@ -74,6 +76,8 @@ export default class Game {
         this.player.update(this.inputMap,this.actions);
         this.startTimer += GlobalManager.deltaTime;
         //GlobalManager.lightTranslation();
+
+        
     }
 
     async createScene() {
@@ -88,9 +92,10 @@ export default class Game {
         //GlobalManager.camera = new FreeCamera("camera", new Vector3(0, 5, -10), GlobalManager.scene);
         //GlobalManager.camera.attachControl(GlobalManager.canvas, true);
         
-        let light = new DirectionalLight("dirLight", new Vector3(6, -5, 0), GlobalManager.scene);
-        light.intensity = 1;
-        GlobalManager.addLight(light);
+        //let light = new DirectionalLight("dirLight", new Vector3(5, -5, 0), GlobalManager.scene);
+        //light.intensity = 1;
+        //GlobalManager.addLight(light);
+        
         /*
         let light2 = new DirectionalLight("dirLight2", new Vector3(0, -10, 0), GlobalManager.scene);
         light2.intensity = 0.7;
@@ -98,16 +103,23 @@ export default class Game {
         */
         //marche pas du au meshChilds
         
-        let shadowGen = new ShadowGenerator(1024, GlobalManager.lights[0]);
-        shadowGen.useBlurExponentialShadowMap = true;
-        GlobalManager.addShadowGenerator(shadowGen);
+        //let shadowGen = new ShadowGenerator(1024, GlobalManager.lights[0]);
+        //shadowGen.useBlurExponentialShadowMap = true;
+        //GlobalManager.addShadowGenerator(shadowGen);
         /*
         let shadowGen2 = new ShadowGenerator(1024, GlobalManager.lights[1]);
         shadowGen2.useBlurExponentialShadowMap = true;
         GlobalManager.addShadowGenerator(shadowGen2);
         */
 
+        // Create a directional light to simulate the sun
+        this.sunLight = new DirectionalLight("sunLight", new Vector3(0, -10, 0), GlobalManager.scene);
+        this.sunLight.intensity = 1;
+        GlobalManager.addLight(this.sunLight);
         
+        let shadowGenSun = new ShadowGenerator(1024, this.sunLight);
+        shadowGenSun.useBlurExponentialShadowMap = true;
+        GlobalManager.addShadowGenerator(shadowGenSun);
 
         var ground = MeshBuilder.CreateGround("ground", {width: 30, height: 30}, GlobalManager.scene);
         var groundMaterial = new StandardMaterial("groundMaterial");
@@ -127,11 +139,8 @@ export default class Game {
         let mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
         mesh.position.y = 1;
         GlobalManager.addShadowCaster(mesh, true);
-
     }
-
-    //a mettre dans un autre fichier
-    initKeyboard(){
+        initKeyboard(){
         GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
