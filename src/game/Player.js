@@ -160,7 +160,7 @@ class Player{
       }  
   }
 
-  move(delta){
+  move(){
     
     if (!this.mesh) return;
     //check si il y a un vecteur d'input 
@@ -170,9 +170,9 @@ class Player{
       //this.mesh.lookAt(this.mesh.position.add(this.moveDirection));
 
       //permet de positionner le mesh dans la bonne direction  
-      Quaternion.SlerpToRef(this.mesh.rotationQuaternion ,this.lookDirectionQuaternion,SPEED_ROTATION * delta, this.mesh.rotationQuaternion)
+      Quaternion.SlerpToRef(this.mesh.rotationQuaternion ,this.lookDirectionQuaternion,SPEED_ROTATION * GlobalManager.deltaTime, this.mesh.rotationQuaternion)
       //permet d'appliquer la translation
-      this.moveDirection.scaleInPlace(SPEED * delta);
+      this.moveDirection.scaleInPlace(SPEED * GlobalManager.deltaTime);
       
       this.mesh.position.addInPlace(this.moveDirection);
     
