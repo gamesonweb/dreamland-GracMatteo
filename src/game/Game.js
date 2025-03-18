@@ -30,7 +30,6 @@ export default class Game {
     constructor(engine,canvas) {
         GlobalManager.engine = engine;
         GlobalManager.canvas = canvas;
-    
     }
 
     async init() {
@@ -40,7 +39,7 @@ export default class Game {
         
         await this.createScene();
         this.initKeyboard();
-        this.player = new Player(GlobalManager.scene);   
+        this.player = new Player();   
         await this.player.init();
         GlobalManager.engine.hideLoadingUI();
     }
@@ -58,7 +57,7 @@ export default class Game {
 
             GlobalManager.update();
             //console.log("delta time : "+DELTA_TIME )
-            this.update(GlobalManager.deltaTime);
+            this.update();
             
              
             this.actions = {};
@@ -67,12 +66,12 @@ export default class Game {
         })
     }
     
-    update(delta){
+    update(){
         //console.log("inputMap in Update of Game :"+this.inputMap)
         
         //rajouter les updates de toutes les entités
-        this.player.update(delta,this.inputMap,this.actions);
-        this.startTimer += delta;
+        this.player.update(this.inputMap,this.actions);
+        this.startTimer += GlobalManager.deltaTime;
     }
 
     async createScene() {

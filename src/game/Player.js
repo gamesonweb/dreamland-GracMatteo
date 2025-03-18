@@ -7,6 +7,7 @@ import '@babylonjs/loaders';  // This registers all additional loaders like GLTF
 import {getForwardVector, getRightVector,getUpVector} from "./getDirectionMesh.js";
 import {ArcRotateCamera, Quaternion} from "babylonjs"
 import {DEBUG_MODE} from "./Game.js"
+import { GlobalManager } from './GlobalManager.js';
 
 //import { SceneLoader } from '@babylonjs/Loading/sceneLoader';
 
@@ -32,56 +33,54 @@ class Player{
 
   lookDirectionQuaternion = new Quaternion.Identity();
 
-  constructor(scene){
-    this.scene = scene;
-
-    //this.init();
+  constructor(){
+  
   }
 
   async init(){
     
     //mesh player
     //this.mesh = MeshBuilder.CreateBox("playerMesh", {size: 1});
-    //this.mesh.material = new StandardMaterial("playerMaterial", this.scene);
+    //this.mesh.material = new StandardMaterial("playerMaterial", GlobalManager.scene);
     //this.mesh.material.diffuseColor = new Color3(0 , 1, 0);  
     //this.mesh.position = new Vector3(3, 0.5, 3);
     
     
-    const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,this.scene);
+    const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,GlobalManager.scene);
     this.mesh = result.meshes[0];
     this.mesh.position = new Vector3(1, 0.5, 1);
     //this.mesh.rotation = new Vector3(0,Math.PI,0);
     this.mesh.rotationQuaternion = Quaternion.Identity();
-    this.mesh
+    //this.mesh
     let camera = new ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
       10,                
       this.mesh.positsion, 
-      this.scene
+      GlobalManager.scene
     );
-    this.camera = camera;
+    GlobalManager.camera = camera;
     /*
-    this.camera = ArcRotateCamera("playerCamera",
+    GlobalManager.camera = ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
       10,                
       this.mesh.position, 
-      this.scene
+      GlobalManager.scene
     );
     */
     // Activer les contrôles de la caméra avec la souris
-    this.camera.attachControl(this.scene.getEngine().getRenderingCanvas(), true);
+    GlobalManager.camera.attachControl(GlobalManager.engine.getRenderingCanvas(), true);
 
     
 
     this.applyCameraToInput();
-    //this.camera.setTarget(this.mesh.position);
+    //GlobalManager.camera.setTarget(this.mesh.position);
     
 
     if(DEBUG_MODE){
       //axies pour debug
-      this.axies = new AxesViewer(this.scene, 1)
+      this.axies = new AxesViewer(GlobalManager.scene, 1)
       this.axies.xAxis.parent = this.mesh;
       this.axies.yAxis.parent = this.mesh;
       this.axies.zAxis.parent = this.mesh;
@@ -89,12 +88,12 @@ class Player{
       
   }
 
-  update(delta ,inputMap, actions){
+  update(inputMap, actions){
     //console.log("input in update :"+inputMap)
     this.getInputs(inputMap,actions);
     this.applyCameraToInput();
     //console.log("delta time ="+delta)
-    this.move(delta);
+    this.move(GlobalManager.deltaTime);
   }
   
   //faire un InputManager
@@ -132,7 +131,7 @@ class Player{
     if(this.moveInput.length() !== 0){
       
       //recuperer le forward de la camera
-      let forward = getForwardVector(this.camera,true);
+      let forward = getForwardVector(GlobalManager.camera,true);
       //reset Y
       forward.y = 0;
       //normaliser
@@ -140,7 +139,7 @@ class Player{
       forward.scaleInPlace(this.moveInput.z);
       
       //recuperer le forward de la camera
-      let right = getRightVector(this.camera,true);
+      let right = getRightVector(GlobalManager.camera,true);
       //reset Y
       right.y = 0;
       //normaliser
@@ -148,7 +147,7 @@ class Player{
       right.scaleInPlace(this.moveInput.x);
       
       //essai de mettre un saut
-      let up = getUpVector(this.camera,true)
+      let up = getUpVector(GlobalManager.camera,true)
 
       //add les 2 vecteurs
       this.moveDirection = right.add(forward);
@@ -179,7 +178,7 @@ class Player{
     
     }
     //permet de suivre le Player
-    this.camera.target = this.mesh.position;
+    GlobalManager.camera.target = this.mesh.position;
   }
 
 
