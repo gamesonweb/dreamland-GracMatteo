@@ -1,4 +1,4 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap, DirectionalLight} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap, DirectionalLight, GamepadManager, Gamepad} from '@babylonjs/core';
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
@@ -30,6 +30,9 @@ export default class Game {
     sunLight;
     sunAngle = 0;
 
+    gamepadManager;
+    gamepad;
+
     constructor(engine,canvas) {
         GlobalManager.engine = engine;
         GlobalManager.canvas = canvas;
@@ -42,6 +45,7 @@ export default class Game {
         
         await this.createScene();
         this.initKeyboard();
+        this.initGamepad();
         this.player = new Player();   
         await this.player.init();
         GlobalManager.engine.hideLoadingUI();
@@ -61,7 +65,7 @@ export default class Game {
             GlobalManager.update();
             //console.log("delta time : "+DELTA_TIME )
             this.update();
-            
+            this.handleGamepadInput();
              
             this.actions = {};
             GlobalManager.scene.render(); 
@@ -141,7 +145,7 @@ export default class Game {
         mesh.position.y = 1;
         GlobalManager.addShadowCaster(mesh, true);
     }
-        initKeyboard(){
+    initKeyboard(){
         GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
@@ -157,7 +161,28 @@ export default class Game {
         })
     }
 
+    initGamepad() {
+        this.gamepadManager = new GamepadManager();
+        this.gamepadManager.onGamepadConnectedObservable.add((gamepad) => {
+            if (gamepad.type === Gamepad.DUALSHOCK) {
+                this.gamepad = gamepad;
+            }
+        });
+    }
 
+    handleGamepadInput() {
+        if (this.gamepad) {
+            const leftStick = this.gamepad.leftStick;
+            const rightStick = this.gamepad.rightStick;
+            
+            // Handle gamepad input
+            this.inputMap["leftStickX"] = leftStick.x;
+            this.inputMap["leftStickY"] = leftStick.y;
+            this.inputMap["rightStickX"] = rightStick.x;
+            this.inputMap["rightStickY"] = rightStick.y;
+            //console.log("leftStickX : "+leftStick.x + " leftStickY : "+leftStick.y);
+        }
+    }
 
 }
 export {DEBUG_MODE}

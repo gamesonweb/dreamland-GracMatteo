@@ -95,7 +95,7 @@ class Player{
   update(inputMap, actions){
     //console.log("input in update :"+inputMap)
     this.getInputs(inputMap,actions);
-    this.applyCameraToInput();
+    this.applyCameraToInput(inputMap);
     //console.log("delta time ="+delta)
     this.move(GlobalManager.deltaTime);
   }
@@ -126,9 +126,27 @@ class Player{
       this.moveInput.y = 1;
     }
 
+    // Handle gamepad input (Left stick) on utilise Math.abs pour gerer les valeurs residuelles
+    if (inputMap["leftStickX"] !== undefined && Math.abs(inputMap["leftStickX"]) > 0.15) {
+      console.log("inputMap leftStickX :"+inputMap["leftStickX"])
+      this.moveInput.x = inputMap["leftStickX"];
+    }
+    if (inputMap["leftStickY"] !== undefined && Math.abs(inputMap["leftStickY"]) > 0.15) {
+      console.log("inputMap leftStickY :"+inputMap["leftStickY"])
+      this.moveInput.z = -inputMap["leftStickY"];
+    }
+    //handle gamepad input (right stick)
+    if (inputMap["rightStickX"] !== undefined && Math.abs(inputMap["rightStickX"]) > 0.15) {
+        GlobalManager.camera.alpha -= inputMap["rightStickX"]  * GlobalManager.deltaTime;
+    }
+    if (inputMap["rightStickY"] !== undefined && Math.abs(inputMap["rightStickY"]) > 0.15) {
+        GlobalManager.camera.beta -= inputMap["rightStickY"]  * GlobalManager.deltaTime;
+    }
   }
+    
+  
 
-  applyCameraToInput(){
+  applyCameraToInput(inputMap){
     
     this.moveDirection.set(0, 0, 0);
     
@@ -162,6 +180,9 @@ class Player{
         Vector3.UpReadOnly,
         this.lookDirectionQuaternion)
       }  
+
+    // Handle right stick input for camera rotation
+    
   }
 
   move(){
