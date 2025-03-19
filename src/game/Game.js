@@ -28,7 +28,7 @@ export default class Game {
     actions = {}
 
     sunLight;
-    sunAngle = 0;
+    
 
     gamepadManager;
     gamepad;
@@ -117,12 +117,12 @@ export default class Game {
         */
 
         // Create a directional light to simulate the sun
-        this.sunLight = new DirectionalLight("sunLight", new Vector3(0, -10, 0), GlobalManager.scene);
+        this.sunLight = new DirectionalLight("sunLight", new Vector3(0, -10, -10), GlobalManager.scene);
         this.sunLight.position = new Vector3(0, 10, 0);
         this.sunLight.intensity = 1;
         GlobalManager.addLight(this.sunLight);
         
-        let shadowGenSun = new ShadowGenerator(1024, this.sunLight);
+        let shadowGenSun = new ShadowGenerator(2048, this.sunLight);
         shadowGenSun.useBlurExponentialShadowMap = true;
         GlobalManager.addShadowGenerator(shadowGenSun);
 
