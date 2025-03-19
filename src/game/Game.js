@@ -163,9 +163,12 @@ export default class Game {
 
     initGamepad() {
         this.gamepadManager = new GamepadManager();
+        console.log("GamepadManager created");
         this.gamepadManager.onGamepadConnectedObservable.add((gamepad) => {
+            console.log("Gamepad connected: " + gamepad.type);
             if (gamepad.type === Gamepad.DUALSHOCK) {
                 this.gamepad = gamepad;
+                console.log("Gamepad connected: " + gamepad.id);
             }
         });
     }
