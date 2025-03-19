@@ -49,9 +49,12 @@ class Player{
     const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,GlobalManager.scene);
     this.mesh = result.meshes[0];
     this.mesh.position = new Vector3(1, 0.5, 1);
+    this.mesh.ellipsoid = new Vector3(0.5,0.5,0.5);
+    this.mesh.checkCollisions = true;
     //this.mesh.rotation = new Vector3(0,Math.PI,0);
     this.mesh.rotationQuaternion = Quaternion.Identity();
     //this.mesh
+    this.createEllipsoidLines();
     let camera = new ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
@@ -146,7 +149,7 @@ class Player{
     
   
 
-  applyCameraToInput(inputMap){
+  applyCameraToInput(){
     
     this.moveDirection.set(0, 0, 0);
     
@@ -202,8 +205,36 @@ class Player{
       this.mesh.position.addInPlace(this.moveDirection);
     
     }
+    
+    
     //permet de suivre le Player
     GlobalManager.camera.target = this.mesh.position;
+  }
+
+  createEllipsoidLines() {
+    // Crée des points pour former une courbe
+    // Supposons que votre modèle est chargé dans une variable "model"
+    
+
+    const points = [];
+    for (let theta = -Math.PI / 2; theta < Math.PI / 2; theta += Math.PI / 36) {
+      points.push(new Vector3(0, 0.5 * Math.sin(theta), 0.35* Math.cos(theta)));
+    }
+    
+    // Crée la première ligne
+    const ellipse = [];
+    ellipse[0] = MeshBuilder.CreateLines("ellipsoidLine", { points: points }, GlobalManager.scene);
+    ellipse[0].color = new Color3(1, 0, 0);
+    ellipse[0].parent = this.mesh;
+    
+    // Duplique et fait tourner pour former un ellipsoïde complet
+    const steps = 24;
+    const dTheta = 2 * Math.PI / steps;
+    for (let i = 1; i < steps; i++) {
+      ellipse[i] = ellipse[0].clone("ellipsoidLine" + i);
+      ellipse[i].parent = this.mesh;
+      ellipse[i].rotation.y = i * dTheta;
+    }
   }
 
 
