@@ -8,7 +8,7 @@ import Player from './Player.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
-var DEBUG_MODE = false;
+var DEBUG_MODE = true;
 
 export default class Game {
     
@@ -151,7 +151,7 @@ export default class Game {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
                     this.inputMap[kbInfo.event.code] = true;
-                    //console.log("keyDOWN"+kbInfo.event.code);
+                    console.log("keyDOWN"+kbInfo.event.code);
                     break;
                 case KeyboardEventTypes.KEYUP :
                     this.inputMap[kbInfo.event.code] = false;

@@ -36,7 +36,7 @@ class GlobalManager {
         this.deltaTime = this.engine.getDeltaTime() / 1000.0;
         // Update the sun's direction to simulate movement
         this.lightRotation(0.01);
-        console.log("light position :" + this.lights[0].position);
+        //console.log("light position :" + this.lights[0].position);
         this.lightTranslation();
         //GlobalManager.lightTranslation(); 
    }
