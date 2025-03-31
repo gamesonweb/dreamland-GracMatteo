@@ -156,6 +156,7 @@ class Player{
   
 
   applyCameraToInput(){
+  applyCameraToInput(){
     
     this.moveDirection.set(0, 0, 0);
     

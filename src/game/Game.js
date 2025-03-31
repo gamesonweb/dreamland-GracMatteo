@@ -88,7 +88,7 @@ export default class Game {
         
         GlobalManager.scene = new Scene(GlobalManager.engine);
         GlobalManager.scene.clearColor = new Color4(0,0,0,0);
-        //GlobalManager.scene.collisionsEnabled = true;
+        GlobalManager.scene.collisionsEnabled = true;
         //GlobalManager.scene.enablePhysics(new Vector3(0, -10, 0), new AmmoJSPlugin(true, Ammo));
 
         //faire un cameraManager
@@ -96,25 +96,7 @@ export default class Game {
         //GlobalManager.camera = new FreeCamera("camera", new Vector3(0, 5, -10), GlobalManager.scene);
         //GlobalManager.camera.attachControl(GlobalManager.canvas, true);
         
-        //let light = new DirectionalLight("dirLight", new Vector3(5, -5, 0), GlobalManager.scene);
-        //light.intensity = 1;
-        //GlobalManager.addLight(light);
         
-        /*
-        let light2 = new DirectionalLight("dirLight2", new Vector3(0, -10, 0), GlobalManager.scene);
-        light2.intensity = 0.7;
-        GlobalManager.addLight(light2);
-        */
-        //marche pas du au meshChilds
-        
-        //let shadowGen = new ShadowGenerator(1024, GlobalManager.lights[0]);
-        //shadowGen.useBlurExponentialShadowMap = true;
-        //GlobalManager.addShadowGenerator(shadowGen);
-        /*
-        let shadowGen2 = new ShadowGenerator(1024, GlobalManager.lights[1]);
-        shadowGen2.useBlurExponentialShadowMap = true;
-        GlobalManager.addShadowGenerator(shadowGen2);
-        */
 
         // Create a directional light to simulate the sun
         this.sunLight = new DirectionalLight("sunLight", new Vector3(0, -10, -10), GlobalManager.scene);
@@ -132,6 +114,11 @@ export default class Game {
         ground.material = groundMaterial
         ground.receiveShadows = true;
         ground.checkCollisions = true;
+<<<<<<< HEAD
+=======
+
+        this.createObstacles();
+>>>>>>> e860cbb0a3dcc5434495abca97b6c8d5e8d7e82b
         
         if (DEBUG_MODE){
             
@@ -142,10 +129,14 @@ export default class Game {
             ground.material = groundMaterial;    
         }
         
+<<<<<<< HEAD
         let mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
         mesh.position.y = 1;
         mesh.checkCollisions = true;
         GlobalManager.addShadowCaster(mesh, true);
+=======
+        
+>>>>>>> e860cbb0a3dcc5434495abca97b6c8d5e8d7e82b
     }
     initKeyboard(){
         GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
@@ -187,6 +178,47 @@ export default class Game {
             this.inputMap["rightStickY"] = rightStick.y;
             //console.log("leftStickX : "+leftStick.x + " leftStickY : "+leftStick.y);
         }
+    }
+
+    createObstacles(){
+        // Créer un mur
+        const wall = MeshBuilder.CreateBox("wall", { width: 3, height: 1, depth: 0.2 }, GlobalManager.scene);
+        wall.position = new Vector3(0, 0.5, 2);
+        wall.checkCollisions = true;
+        //wall.receiveShadows = true;
+        const wallMaterial = new StandardMaterial("wallMaterial", GlobalManager.scene);
+        wallMaterial.diffuseColor = new Color3(0.7, 0.3, 0.3);
+        wall.material = wallMaterial;
+        GlobalManager.addShadowCaster(wall, true);
+        // Créer une colonne
+        const column = MeshBuilder.CreateCylinder("column", { height: 2, diameter: 0.5 }, GlobalManager.scene);
+        column.position = new Vector3(-2, 1, -1);
+        column.checkCollisions = true;
+        //column.receiveShadows = true;
+        GlobalManager.addShadowCaster(column, true);
+        const columnMaterial = new StandardMaterial("columnMaterial", GlobalManager.scene);
+        columnMaterial.diffuseColor = new Color3(0.3, 0.7, 0.3);
+        column.material = columnMaterial;
+        
+        // Créer une boîte
+        const box = MeshBuilder.CreateBox("box", { size: 0.8 }, GlobalManager.scene);
+        box.position = new Vector3(2, 0.4, -1);
+        box.checkCollisions = true;
+        //box.receiveShadows = true;
+        const boxMaterial = new StandardMaterial("boxMaterial", GlobalManager.scene);
+        boxMaterial.diffuseColor = new Color3(0.3, 0.3, 0.7);
+        box.material = boxMaterial;
+        GlobalManager.addShadowCaster(box, true);
+        
+        const mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
+        mesh.position.y = 1;
+        //mesh.receiveShadows = true;
+        GlobalManager.addShadowCaster(mesh, true);
+
+        mesh.checkCollision = true;
+        wall.checkCollisions = true;
+        column.checkCollisions = true;
+        box.checkCollisions = true;        
     }
 
 }
