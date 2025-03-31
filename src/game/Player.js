@@ -48,13 +48,13 @@ class Player{
     
     const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,GlobalManager.scene);
     this.mesh = result.meshes[0];
-    this.mesh.position = new Vector3(1, 0.5, 1);
-    this.mesh.ellipsoid = new Vector3(0.5,0.5,0.5);
+    this.mesh.position = new Vector3(1, 0.6, 1);
+    this.mesh.ellipsoid = new Vector3(0.5,0.4,0.5);
     const offsetY = 0.0;
     this.mesh.ellipsoidOffset = new Vector3(0, offsetY, 0);
 
     this.mesh.checkCollisions = true;
-    //this.mesh.rotation = new Vector3(0,Math.PI,0);
+   
     this.mesh.rotationQuaternion = Quaternion.Identity();
     //this.mesh
     if (DEBUG_MODE){

@@ -8,7 +8,7 @@ import Player from './Player.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
-var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 
 export default class Game {
     
@@ -105,7 +105,10 @@ export default class Game {
         GlobalManager.addLight(this.sunLight);
         
         let shadowGenSun = new ShadowGenerator(2048, this.sunLight);
-        shadowGenSun.useBlurExponentialShadowMap = true;
+        shadowGenSun.useExponentialShadowMap = true;
+        shadowGenSun.bias = 0.01;
+        shadowGenSun.normalBias = 0.02;
+
         GlobalManager.addShadowGenerator(shadowGenSun);
 
         var ground = MeshBuilder.CreateGround("ground", {width: 30, height: 30}, GlobalManager.scene);
@@ -128,7 +131,21 @@ export default class Game {
         mesh.position.y = 1;
         mesh.checkCollisions = true;
         GlobalManager.addShadowCaster(mesh, true);
+        
+        let mesh2 = MeshBuilder.CreateCylinder("cylinder", { height: 2, diameter: 0.5 }, GlobalManager.scene);
+        mesh2.position.y = 1;
+        mesh2.position.x = 5;
+        mesh2.receiveShadows = true;
+        mesh2.checkCollisions = true;
+
+        const material = new BABYLON.StandardMaterial("mat", GlobalManager.scene);
+        material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        mesh2.material = material;
+
+        GlobalManager.addShadowCaster(mesh2);
+        this.createObstacles();
     }
+    
     initKeyboard(){
         GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
             switch (kbInfo.type) {

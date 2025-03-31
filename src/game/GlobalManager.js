@@ -85,7 +85,7 @@ class GlobalManager {
 
    lightTranslation(){
      // Mise à jour de l'angle (par exemple, décrémenté pour un mouvement horaire)
-     this.sunAngle += 0.01 * this.deltaTime;
+     this.sunAngle += 0.1 * this.deltaTime;
      
      // Calcul de la nouvelle position sur le cercle de rayon 'this.rayon'
      const sunTranslation = new Vector3(
