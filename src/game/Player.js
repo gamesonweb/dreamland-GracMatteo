@@ -49,9 +49,18 @@ class Player{
     const result = await SceneLoader.ImportMeshAsync("",pathPlayerGLB,PlayerGLB,GlobalManager.scene);
     this.mesh = result.meshes[0];
     this.mesh.position = new Vector3(1, 0.5, 1);
+    this.mesh.ellipsoid = new Vector3(0.5,0.5,0.5);
+    const offsetY = 0.0;
+    this.mesh.ellipsoidOffset = new Vector3(0, offsetY, 0);
+
+    this.mesh.checkCollisions = true;
     //this.mesh.rotation = new Vector3(0,Math.PI,0);
     this.mesh.rotationQuaternion = Quaternion.Identity();
     //this.mesh
+    if (DEBUG_MODE){
+      this.createEllipsoidLines(this.mesh.ellipsoid.x, this.mesh.ellipsoid.y);
+    }
+    
     let camera = new ArcRotateCamera("playerCamera",
       -Math.PI/2,       
       3*Math.PI/10,       
@@ -146,7 +155,7 @@ class Player{
     
   
 
-  applyCameraToInput(inputMap){
+  applyCameraToInput(){
     
     this.moveDirection.set(0, 0, 0);
     
@@ -195,15 +204,53 @@ class Player{
       //this.mesh.lookAt(this.mesh.position.add(this.moveDirection));
 
       //permet de positionner le mesh dans la bonne direction  
-      Quaternion.SlerpToRef(this.mesh.rotationQuaternion ,this.lookDirectionQuaternion,SPEED_ROTATION * GlobalManager.deltaTime, this.mesh.rotationQuaternion)
-      //permet d'appliquer la translation
+      Quaternion.SlerpToRef(
+        this.mesh.rotationQuaternion ,
+        this.lookDirectionQuaternion,
+        SPEED_ROTATION * GlobalManager.deltaTime, 
+        this.mesh.rotationQuaternion)
+
       this.moveDirection.scaleInPlace(SPEED * GlobalManager.deltaTime);
-      
-      this.mesh.position.addInPlace(this.moveDirection);
-    
+      //this.mesh.position.addInPlace(this.moveDirection);
     }
+    
+      this.moveDirection.addInPlace(GlobalManager.gravityVector.scale(GlobalManager.deltaTime))
+      this.mesh.moveWithCollisions(this.moveDirection)
+      //permet d'appliquer la translation
+      
+      let collidedMesh = this.mesh.collider ? this.mesh.collider.collidedMesh : null;
+      if(collidedMesh){
+        console.log(collidedMesh)
+      }
+      //this.mesh.position.addInPlace(this.moveDirection);
     //permet de suivre le Player
     GlobalManager.camera.target = this.mesh.position;
+  }
+
+  createEllipsoidLines(a,b) {
+    // Crée des points pour former une courbe
+    // Supposons que votre modèle est chargé dans une variable "model"
+    
+
+    const points = [];
+    for (let theta = -Math.PI / 2; theta < Math.PI / 2; theta += Math.PI / 36) {
+      points.push(new Vector3(0, a * Math.sin(theta), b* Math.cos(theta)));
+    }
+    
+    // Crée la première ligne
+    const ellipse = [];
+    ellipse[0] = MeshBuilder.CreateLines("ellipsoidLine", { points: points }, GlobalManager.scene);
+    ellipse[0].color = new Color3(1, 0, 0);
+    ellipse[0].parent = this.mesh;
+    
+    // Duplique et fait tourner pour former un ellipsoïde complet
+    const steps = 24;
+    const dTheta = 2 * Math.PI / steps;
+    for (let i = 1; i < steps; i++) {
+      ellipse[i] = ellipse[0].clone("ellipsoidLine" + i);
+      ellipse[i].parent = this.mesh;
+      ellipse[i].rotation.y = i * dTheta;
+    }
   }
 
 

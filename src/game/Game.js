@@ -8,7 +8,7 @@ import Player from './Player.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
-var DEBUG_MODE = false;
+var DEBUG_MODE = true;
 
 export default class Game {
     
@@ -131,6 +131,7 @@ export default class Game {
         groundMaterial.diffuseColor = new Color3( 0, 0, 1);
         ground.material = groundMaterial
         ground.receiveShadows = true;
+        ground.checkCollisions = true;
         
         if (DEBUG_MODE){
             
@@ -143,6 +144,7 @@ export default class Game {
         
         let mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
         mesh.position.y = 1;
+        mesh.checkCollisions = true;
         GlobalManager.addShadowCaster(mesh, true);
     }
     initKeyboard(){

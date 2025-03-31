@@ -1,0 +1,303 @@
+Body1_v
+=======
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+Cap_v
+=====
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+EyeLid_v
+========
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+EyeballL_v
+==========
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+EyeballR_v
+==========
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+Face_v
+======
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+Hair_v
+======
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+Hand_v
+======
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4
+
+
+
+Hand_v(2)
+=========
+  Textures:
+    - BackG
+        Offset: -0.36656349897384644, 0
+        Scale: 2.238610029220581, 2.238610029220581
+    - Noizu
+        Scale: 10, 10
+    - BackGStar
+        Offset: 0.17054295539855957, 0
+        Scale: 6.967824459075928, 6.967824459075928
+
+  Ambient Colors:
+    - 128, 128, 128, 128
+
+  Constant Colors:
+    - 255, 255, 255, 9
+
+  Color Registers:
+    - 0, 0, 0, -60
+    - 255, 255, 255, 117
+
+  Steps:
+    1: RGB = (vertex RGB)
+         A = (lerp from (tex #2 A) to 32 using (vertex A)), then add -60, multiply by 2
+    2: RGB = ((vertex RGB) * (prev. A)), then add (prev. RGB)
+         A = 255
+    3: RGB = (tex #1 RGB), then add (prev. RGB)
+         A = (prev. A)
+    4: RGB = ((117, 117, 117) * (tex #3 RGB)), then add (prev. RGB)
+         A = 255, multiply by 4

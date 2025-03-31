@@ -1,0 +1,44 @@
+newmtl m3
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioEyeBall.png
+
+newmtl m2
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd mario_eyeLid.0.png
+
+newmtl m5
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioHair.png
+
+newmtl m1
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioCap.0.png
+
+newmtl m7
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd TornadoBlurBody.png
+
+newmtl m0
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd TornadoBody.png
+
+newmtl m4
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioFace.png
+
+newmtl m8
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd TornadoBlurHand.png
+
+newmtl m6
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioHand.png

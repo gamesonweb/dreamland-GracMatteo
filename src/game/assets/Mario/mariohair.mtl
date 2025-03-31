@@ -1,0 +1,14 @@
+newmtl m2
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioHair.png
+
+newmtl m1
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioHair2.png
+
+newmtl m0
+Kd 0.800000 0.800000 0.800000
+illum 1
+map_Kd MarioCap.0.png
