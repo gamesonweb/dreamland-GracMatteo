@@ -152,10 +152,7 @@ class Player{
         GlobalManager.camera.beta -= inputMap["rightStickY"]  * GlobalManager.deltaTime;
     }
   }
-    
   
-
-  applyCameraToInput(){
   applyCameraToInput(){
     
     this.moveDirection.set(0, 0, 0);
@@ -231,8 +228,6 @@ class Player{
   createEllipsoidLines(a,b) {
     // Crée des points pour former une courbe
     // Supposons que votre modèle est chargé dans une variable "model"
-    
-
     const points = [];
     for (let theta = -Math.PI / 2; theta < Math.PI / 2; theta += Math.PI / 36) {
       points.push(new Vector3(0, a * Math.sin(theta), b* Math.cos(theta)));
@@ -255,6 +250,4 @@ class Player{
   }
 
 
-}
-
-export default Player;
+}export default Player;

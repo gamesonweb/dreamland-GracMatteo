@@ -114,11 +114,6 @@ export default class Game {
         ground.material = groundMaterial
         ground.receiveShadows = true;
         ground.checkCollisions = true;
-<<<<<<< HEAD
-=======
-
-        this.createObstacles();
->>>>>>> e860cbb0a3dcc5434495abca97b6c8d5e8d7e82b
         
         if (DEBUG_MODE){
             
@@ -129,14 +124,10 @@ export default class Game {
             ground.material = groundMaterial;    
         }
         
-<<<<<<< HEAD
         let mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
         mesh.position.y = 1;
         mesh.checkCollisions = true;
         GlobalManager.addShadowCaster(mesh, true);
-=======
-        
->>>>>>> e860cbb0a3dcc5434495abca97b6c8d5e8d7e82b
     }
     initKeyboard(){
         GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
