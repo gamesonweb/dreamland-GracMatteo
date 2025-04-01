@@ -23,7 +23,8 @@ class Player {
   moveInput = new Vector3(0, 0, 0);
   moveDirection = new Vector3(0, 0, 0);
 
-  masse = 1;
+  
+
   jumpVelocity = 0;
   jumpForce = 20;
   gravity = -9.81;
@@ -34,16 +35,21 @@ class Player {
   constructor() {}
 
   async init() {
+    
+    
+    
+
     const result = await SceneLoader.ImportMeshAsync("", pathPlayerGLB, PlayerGLB, GlobalManager.scene);
     this.mesh = result.meshes[0];
     this.mesh.position = new Vector3(1, 0.6, 1);
-    this.mesh.ellipsoid = new Vector3(0.5, 0.5, 0.5);
-    this.mesh.ellipsoidOffset = new Vector3(0, 0.0, 0);
+    this.mesh.ellipsoid = new Vector3(0.4, 0.5, 0.4);
+    this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     this.mesh.checkCollisions = true;
     this.mesh.rotationQuaternion = Quaternion.Identity();
 
+
     if (DEBUG_MODE) {
-      this.createEllipsoidLines(this.mesh.ellipsoid.x, this.mesh.ellipsoid.y);
+      this.createEllipsoidLines(this.mesh.ellipsoid.x - this.mesh.ellipsoidOffset.x , this.mesh.ellipsoid.y - this.mesh.ellipsoidOffset.y);
     }
 
     let camera = new ArcRotateCamera("playerCamera", -Math.PI / 2, 3 * Math.PI / 10, 10, this.mesh.position, GlobalManager.scene);
@@ -64,7 +70,7 @@ class Player {
   update(inputMap, actions) {
     this.getInputs(inputMap, actions);
     this.applyCameraToInput(inputMap);
-    this.move(GlobalManager.deltaTime);
+    this.move();
   }
 
   //temporaire
@@ -145,11 +151,11 @@ class Player {
     this.mesh.moveWithCollisions(this.moveDirection);
 
     
-
+    console.log(this.getMinCoordinate());
     GlobalManager.camera.target = this.mesh.position;
   }
 
-  createEllipsoidLines(a, b) {
+  createEllipsoidLines(a,b) {
     const points = [];
     for (let theta = -Math.PI / 2; theta < Math.PI / 2; theta += Math.PI / 36) {
       points.push(new Vector3(0, a * Math.sin(theta), b * Math.cos(theta)));
@@ -168,6 +174,14 @@ class Player {
       ellipse[i].rotation.y = i * dTheta;
     }
   }
-}
+  //get MinCoordinate of the mesh
+  getMinCoordinate() {
+    const boundingBox = this.mesh.getBoundingInfo().boundingBox;
+    const min = boundingBox.minimumWorld;
+    return new Vector3(min.x, min.y, min.z);
+  }
 
+  
+
+}
 export default Player;
