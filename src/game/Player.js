@@ -5,6 +5,7 @@ import {getForwardVector, getRightVector, getUpVector} from "./getDirectionMesh.
 import {ArcRotateCamera, Quaternion, Ray} from "babylonjs";
 import {DEBUG_MODE} from "./Game.js";
 import {GlobalManager} from './GlobalManager.js';
+import Game from './Game.js';
 
 const SPEED = 5;
 const SPEED_ROTATION = 5;
@@ -15,19 +16,32 @@ const PlayerGLB = "angryAntoine.glb";
 
 class Player {
   mesh;
-  shadow;
   scene;
   camera;
   axies;
 
   moveInput = new Vector3(0, 0, 0);
   moveDirection = new Vector3(0, 0, 0);
-
-  
-
-  jumpVelocity = 0;
-  jumpForce = 20;
+  //============================
+  rayCastLenght;
+  rotationSpeed;
+  tmpRotationSpeed;
+  speed;
   gravity = -9.81;
+  tmpGravity;
+  jumpForce = 20;
+  currentPlanet;
+  distLinePlanetToPlayer;
+  //rayCast
+  hits = [];
+
+  planetDir = new Vector3(0, 0, 0);
+  normalVector = new Vector3(0, 0, 0);
+  //============================
+  jumpVelocity = 0;
+  
+  
+  
   isJumping = false;
 
   lookDirectionQuaternion = new Quaternion.Identity();
@@ -35,10 +49,7 @@ class Player {
   constructor() {}
 
   async init() {
-    
-    
-    
-
+  
     const result = await SceneLoader.ImportMeshAsync("", pathPlayerGLB, PlayerGLB, GlobalManager.scene);
     this.mesh = result.meshes[0];
     this.mesh.position = new Vector3(1, 0.6, 1);
@@ -47,7 +58,7 @@ class Player {
     this.mesh.checkCollisions = true;
     this.mesh.rotationQuaternion = Quaternion.Identity();
 
-
+    
     if (DEBUG_MODE) {
       this.createEllipsoidLines(this.mesh.ellipsoid.x - this.mesh.ellipsoidOffset.x , this.mesh.ellipsoid.y - this.mesh.ellipsoidOffset.y);
     }
@@ -59,18 +70,24 @@ class Player {
 
     this.applyCameraToInput();
 
+    this.tmpGravity = this.gravity;
+    this.tmpRotationSpeed = this.rotationSpeed;
     if (DEBUG_MODE) {
       this.axies = new AxesViewer(GlobalManager.scene, 1);
       this.axies.xAxis.parent = this.mesh;
       this.axies.yAxis.parent = this.mesh;
       this.axies.zAxis.parent = this.mesh;
     }
+    
   }
 
-  update(inputMap, actions) {
+  update(inputMap, actions,planet) {
+    this.currentPlanet = planet;
     this.getInputs(inputMap, actions);
     this.applyCameraToInput(inputMap);
     this.move();
+    
+    console.log(this.getDistPlanetPlayer(planet))
   }
 
   //temporaire
@@ -151,7 +168,7 @@ class Player {
     this.mesh.moveWithCollisions(this.moveDirection);
 
     
-    console.log(this.getMinCoordinate());
+    //console.log(this.getMinCoordinate());
     GlobalManager.camera.target = this.mesh.position;
   }
 
@@ -181,7 +198,13 @@ class Player {
     return new Vector3(min.x, min.y, min.z);
   }
 
-  
+  getDistPlanetPlayer(planet){
+    if(DEBUG_MODE){
+      const points = [this.mesh.position,planet.position]
+      this.distLinePlanetToPlayer = MeshBuilder.CreateLines("planetToPlayer",{points : points,instance : this.distLinePlanetToPlayer,updatable:true },GlobalManager.scene)
+    }
+    return this.mesh.position.subtract(planet.position)
+  }
 
 }
 export default Player;

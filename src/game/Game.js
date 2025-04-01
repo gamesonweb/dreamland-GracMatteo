@@ -5,10 +5,11 @@ import {Inspector} from "@babylonjs/inspector";
 import Ammo from 'ammo.js'; 
 
 import Player from './Player.js';
+import Planet from './planet.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
-var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 
 export default class Game {
     
@@ -23,7 +24,9 @@ export default class Game {
     startTimer;
     
     player;
-    
+    planet;
+    dist;
+
     inputMap = {};
     actions = {}
 
@@ -46,16 +49,22 @@ export default class Game {
         await this.createScene();
         this.initKeyboard();
         this.initGamepad();
+        this.planet = new Planet(10,9.8,new Vector3(10,0,10))
+        await this.planet.init()
         this.player = new Player();   
         await this.player.init();
         GlobalManager.engine.hideLoadingUI();
+    }
+
+    getDistPlanetPlayer(playerPosition, planetPosition) {
+        return playerPosition.subtract(planetPosition);
     }
 
     async start() {
         
         await this.init();
         
-        if(DEBUG_MODE){
+        if(this.DEBUG_MODE){
             Inspector.Show(GlobalManager.scene,{});
         }
 
@@ -77,8 +86,9 @@ export default class Game {
         //console.log("inputMap in Update of Game :"+this.inputMap)
         
         //rajouter les updates de toutes les entités
-        this.player.update(this.inputMap,this.actions);
+        this.player.update(this.inputMap,this.actions,this.planet);
         this.startTimer += GlobalManager.deltaTime;
+        //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
 
         
@@ -229,5 +239,10 @@ export default class Game {
         box.checkCollisions = true;        
     }
 
+    getPlanetPosition(){
+        return this.planet.position
+    }
+    
+
 }
-export {DEBUG_MODE}
+export {DEBUG_MODE};
