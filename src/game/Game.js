@@ -9,7 +9,7 @@ import Planet from './planet.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
-var DEBUG_MODE = false;
+var DEBUG_MODE = true;
 
 export default class Game {
     
@@ -64,7 +64,7 @@ export default class Game {
         
         await this.init();
         
-        if(this.DEBUG_MODE){
+        if(DEBUG_MODE){
             Inspector.Show(GlobalManager.scene,{});
         }
 

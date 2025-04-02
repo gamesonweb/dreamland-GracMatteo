@@ -1,4 +1,4 @@
-import {Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3} from '@babylonjs/core';
+import {Vector4,Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3,Color4} from '@babylonjs/core';
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders';
 import {getForwardVector, getRightVector, getUpVector} from "./getDirectionMesh.js";
@@ -87,7 +87,7 @@ class Player {
     this.applyCameraToInput(inputMap);
     this.move();
     
-    console.log(this.getDistPlanetPlayer(planet))
+    //console.log(this.getDistPlanetPlayer(planet))
   }
 
   //temporaire
@@ -140,7 +140,11 @@ class Player {
       right.y = 0;
       right.normalize();
       right.scaleInPlace(this.moveInput.x);
-
+      
+      let up = getUpVector(GlobalManager.camera,true)
+      up.normalize()
+      //console.log(up);
+      console.log(this.getDistPlanetPlayer(this.currentPlanet));
       this.moveDirection = right.add(forward);
       this.moveDirection.normalize();
 
@@ -198,12 +202,22 @@ class Player {
     return new Vector3(min.x, min.y, min.z);
   }
 
-  getDistPlanetPlayer(planet){
-    if(DEBUG_MODE){
-      const points = [this.mesh.position,planet.position]
-      this.distLinePlanetToPlayer = MeshBuilder.CreateLines("planetToPlayer",{points : points,instance : this.distLinePlanetToPlayer,updatable:true },GlobalManager.scene)
+  getDistPlanetPlayer(planet) {
+    
+    if (DEBUG_MODE) {
+      const points = [this.mesh.position, planet.position];
+      this.distLinePlanetToPlayer = MeshBuilder.CreateLines("planetToPlayer", {
+        points: points,
+        instance: this.distLinePlanetToPlayer,
+        updatable: true,
+        colors: [new Color4(1, 0, 0, 1), new Color4(1, 0, 0, 1)]
+      }, GlobalManager.scene);
     }
-    return this.mesh.position.subtract(planet.position)
+    return this.mesh.position.subtract(planet.position);
+  }
+  
+  getPlayerPositionOnPLanet(planet){
+    
   }
 
 }
