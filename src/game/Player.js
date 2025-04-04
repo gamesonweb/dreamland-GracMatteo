@@ -1,4 +1,4 @@
-import {Vector4,Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3,Color4} from '@babylonjs/core';
+import {Vector4,Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3,Color4,Matrix,TransformNode} from '@babylonjs/core';
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders';
 import {getForwardVector, getRightVector, getUpVector} from "./getDirectionMesh.js";
@@ -24,7 +24,7 @@ class Player {
   moveDirection = new Vector3(0, 0, 0);
   //============================
   rayCastLenght;
-  rotationSpeed;
+  rotationSpeed = 5;
   tmpRotationSpeed;
   speed;
   gravity = 9.8;
@@ -41,7 +41,7 @@ class Player {
   //============================
   jumpVelocity = 0;
   isJumping = true;
-
+  cameraTarget;
   lookDirectionQuaternion = new Quaternion.Identity();
 
   constructor() {}
@@ -50,18 +50,28 @@ class Player {
   
     const result = await SceneLoader.ImportMeshAsync("", pathPlayerGLB, PlayerGLB, GlobalManager.scene);
     this.mesh = result.meshes[0];
-    this.mesh.position = new Vector3(1, 0.6, 1);
+    this.mesh.name = "player";
+    //this.mesh = MeshBuilder.CreateBox("player", {size: 1}, GlobalManager.scene);
+    this.mesh.position = new Vector3(100, 60, 60);
     this.mesh.ellipsoid = new Vector3(0.4, 0.5, 0.4);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     this.mesh.checkCollisions = false;
-    this.mesh.rotationQuaternion = Quaternion.Identity();
-
+    
+    if (!this.mesh.rotationQuaternion) {
+      this.mesh.rotationQuaternion = Quaternion.Identity();
+    }
     
     if (DEBUG_MODE) {
       this.createEllipsoidLines(this.mesh.ellipsoid.x - this.mesh.ellipsoidOffset.x , this.mesh.ellipsoid.y - this.mesh.ellipsoidOffset.y);
     }
 
     let camera = new ArcRotateCamera("playerCamera", -Math.PI / 2, 3 * Math.PI / 10, 10, this.mesh.position, GlobalManager.scene);
+    camera.lowerBetaLimit = 0.01 // ou 0.01 si tu veux éviter qu'elle s'inverse complètement
+    camera.upperBetaLimit = null;
+    
+
+
+    
     GlobalManager.camera = camera;
     GlobalManager.addShadowCaster(this.mesh, true);
     GlobalManager.camera.attachControl(GlobalManager.engine.getRenderingCanvas(), true);
@@ -84,12 +94,14 @@ class Player {
     this.getInputs(inputMap, actions);
     this.applyCameraToInput(inputMap);
     this.move();
-    this.applyPlanetRotation();
     this.applyGravity();
+    this.applyPlanetRotation();
+  
     this.getDistPlanetPlayer(this.currentPlanet);
   }
 
-
+  
+  
   getInputs(inputMap, actions) {
     this.moveInput.set(0, 0, 0);
 
@@ -127,21 +139,38 @@ class Player {
       let forward = getForwardVector(GlobalManager.camera, true);
       let right = getRightVector(GlobalManager.camera, true);
   
-      // Combine input
       forward.scaleInPlace(this.moveInput.z);
       right.scaleInPlace(this.moveInput.x);
-      
-      //on recupere la tangente au point de la planet
+  
       let moveDir = forward.add(right);
+      let tangent = moveDir.subtract(this.normalVector.scale(Vector3.Dot(moveDir, this.normalVector)));
       
-      const tangent = moveDir.subtract(this.normalVector.scale(Vector3.Dot(moveDir, this.normalVector)));
+      //console.log("Tangent: ", tangent, "Normal: ", this.normalVector, "MoveDir: ", moveDir);
+      if (tangent.length() > 0.001) {
+        this.moveDirection = tangent.normalize();
   
-      this.moveDirection = tangent.normalize();
-  
-      // Orientation visuelle
-      Quaternion.FromLookDirectionLHToRef(this.moveDirection, this.normalVector, this.lookDirectionQuaternion);
+        if (this.moveDirection.length() > 0.001 && this.normalVector.length() > 0.001) {
+          //this.lookDirectionQuaternion = this.lookDirectionQuaternion.multiply(Quaternion.RotationAxis(this.moveDirection, Math.PI / 2));
+          //Quaternion.FromLookDirectionLHToRef(this.moveDirection, this.normalVector, this.lookDirectionQuaternion);  
+          // Calcul du vecteur tangent sur la planète
+            let moveDir = forward.add(right);
+            let tangent = moveDir.subtract(this.normalVector.scale(Vector3.Dot(moveDir, this.normalVector)));
+
+            if (tangent.length() > 0.001) {
+              this.moveDirection = tangent.normalize();
+
+              // 💡 Tourne autour de la normale uniquement
+              const up = this.normalVector.scale(-1); // Le haut du perso = vers l'opposé de la gravité
+              const rotationMatrix = Matrix.RotationAxis(up, Math.atan2(-this.moveDirection.x, -this.moveDirection.z));
+
+              this.lookDirectionQuaternion = Quaternion.FromRotationMatrix(rotationMatrix);
+            }
+
+        }
+      }
     }
   }
+  
   
   move() {
     if (!this.mesh) return;
@@ -255,23 +284,56 @@ class Player {
   
 
   applyPlanetRotation() {
-    const currentUp = getUpVector(this.mesh);
-    const axis = Vector3.Cross(currentUp, this.normalVector).normalize();
-    const angle = Vector3.GetAngleBetweenVectors(currentUp, this.normalVector, axis);
+    if (!this.mesh || !this.normalVector) return;
   
+    const currentUp = getUpVector(this.mesh); // On veut que le perso regarde à l'opposé de la gravité
+    const desiredUp = this.normalVector.scale(-1); // On veut que le perso regarde à l'opposé de la gravité
+  
+    // Vérifie si déjà aligné
+    const dot = Vector3.Dot(currentUp, desiredUp);
+    if (dot > 0.9999) return;
+  
+    // Axe de rotation
+    let axis = Vector3.Cross(currentUp, desiredUp);
+  
+    if (axis.length() < 0.001 || isNaN(axis.x)) {
+      axis = Vector3.Cross(currentUp, new Vector3(1, 0, 0));
+      if (axis.length() < 0.001) {
+        axis = Vector3.Cross(currentUp, new Vector3(0, 0, 1));
+      }
+    }
+    axis.normalize();
+  
+    // Angle de rotation
+    const angle = Math.acos(Math.min(Math.max(dot, -1), 1)); // clamp entre -1 et 1
+  
+    // Quaternion de rotation
     const qRot = Quaternion.RotationAxis(axis, angle);
     const targetRotation = qRot.multiply(this.mesh.rotationQuaternion);
   
-    Quaternion.SlerpToRef(
-      this.mesh.rotationQuaternion,
-      targetRotation,
-      this.rotationSpeed * GlobalManager.deltaTime,
-      this.mesh.rotationQuaternion
-    );
-    
+    if (this.isValidQuaternion(targetRotation)) {
+      Quaternion.SlerpToRef(
+        this.mesh.rotationQuaternion,
+        targetRotation,
+        this.rotationSpeed * GlobalManager.deltaTime,
+        this.mesh.rotationQuaternion
+      );
+    } else {
+      console.warn("Quaternion invalide");
+    }
   }
   
-
+  
+  
+  isValidQuaternion(quat) {
+    return (
+      !isNaN(quat.x) &&
+      !isNaN(quat.y) &&
+      !isNaN(quat.z) &&
+      !isNaN(quat.w)
+    );
+  }
+  
   createEllipsoidLines(a,b) {
     const points = [];
     for (let theta = -Math.PI / 2; theta < Math.PI / 2; theta += Math.PI / 36) {
