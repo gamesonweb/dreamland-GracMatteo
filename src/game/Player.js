@@ -27,7 +27,8 @@ class Player {
   rotationSpeed;
   tmpRotationSpeed;
   speed;
-  gravity = -9.81;
+  gravity = 9.8;
+  gravityDirection = new Vector3(0, 0, 0);
   tmpGravity;
   jumpForce = 20;
   currentPlanet;
@@ -39,10 +40,7 @@ class Player {
   normalVector = new Vector3(0, 0, 0);
   //============================
   jumpVelocity = 0;
-  
-  
-  
-  isJumping = false;
+  isJumping = true;
 
   lookDirectionQuaternion = new Quaternion.Identity();
 
@@ -55,7 +53,7 @@ class Player {
     this.mesh.position = new Vector3(1, 0.6, 1);
     this.mesh.ellipsoid = new Vector3(0.4, 0.5, 0.4);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
-    this.mesh.checkCollisions = true;
+    this.mesh.checkCollisions = false;
     this.mesh.rotationQuaternion = Quaternion.Identity();
 
     
@@ -78,7 +76,7 @@ class Player {
       this.axies.yAxis.parent = this.mesh;
       this.axies.zAxis.parent = this.mesh;
     }
-    
+    //console.log(result.meshes);
   }
 
   update(inputMap, actions,planet) {
@@ -86,16 +84,11 @@ class Player {
     this.getInputs(inputMap, actions);
     this.applyCameraToInput(inputMap);
     this.move();
-    
-    //console.log(this.getDistPlanetPlayer(planet))
+    this.applyPlanetRotation();
+    this.applyGravity();
+    this.getDistPlanetPlayer(this.currentPlanet);
   }
 
-  //temporaire
-  checkIfGrounded() {
-    const ray = new Ray(this.mesh.position, new Vector3(0, -1, 0), 0.6);
-    const pick = GlobalManager.scene.pickWithRay(ray, (mesh) => mesh.isPickable && mesh !== this.mesh && mesh.checkCollisions && mesh.ellipsoid !== undefined);
-    return pick && pick.hit;
-  }
 
   getInputs(inputMap, actions) {
     this.moveInput.set(0, 0, 0);
@@ -105,7 +98,7 @@ class Player {
     if (inputMap["KeyW"]) this.moveInput.z = 1;
     if (inputMap["KeyS"]) this.moveInput.z = -1;
 
-    if (actions["Space"] && !this.isJumping && this.checkIfGrounded()) {
+    if (actions["Space"] && !this.isJumping ) {
       //console.log("jump");
       this.jumpVelocity = this.jumpForce;
       this.isJumping = true;
@@ -129,30 +122,27 @@ class Player {
 
   applyCameraToInput() {
     this.moveDirection.set(0, 0, 0);
-
+  
     if (this.moveInput.length() !== 0) {
       let forward = getForwardVector(GlobalManager.camera, true);
-      forward.y = 0;
-      forward.normalize();
-      forward.scaleInPlace(this.moveInput.z);
-
       let right = getRightVector(GlobalManager.camera, true);
-      right.y = 0;
-      right.normalize();
+  
+      // Combine input
+      forward.scaleInPlace(this.moveInput.z);
       right.scaleInPlace(this.moveInput.x);
       
-      let up = getUpVector(GlobalManager.camera,true)
-      up.normalize()
-      //console.log(up);
-      console.log(this.getDistPlanetPlayer(this.currentPlanet));
-      this.moveDirection = right.add(forward);
-      this.moveDirection.normalize();
-
-      Quaternion.FromLookDirectionLHToRef(this.moveDirection, Vector3.UpReadOnly, this.lookDirectionQuaternion);
+      //on recupere la tangente au point de la planet
+      let moveDir = forward.add(right);
+      
+      const tangent = moveDir.subtract(this.normalVector.scale(Vector3.Dot(moveDir, this.normalVector)));
+  
+      this.moveDirection = tangent.normalize();
+  
+      // Orientation visuelle
+      Quaternion.FromLookDirectionLHToRef(this.moveDirection, this.normalVector, this.lookDirectionQuaternion);
     }
-    
   }
-
+  
   move() {
     if (!this.mesh) return;
 
@@ -160,21 +150,127 @@ class Player {
       Quaternion.SlerpToRef(this.mesh.rotationQuaternion, this.lookDirectionQuaternion, SPEED_ROTATION * GlobalManager.deltaTime, this.mesh.rotationQuaternion);
       this.moveDirection.scaleInPlace(SPEED * GlobalManager.deltaTime);
     }
-
-    this.jumpVelocity += this.gravity * GlobalManager.deltaTime;
-    this.moveDirection.y = this.jumpVelocity * GlobalManager.deltaTime;
-    
-    if (this.checkIfGrounded()) {
-      this.isJumping = false;
-      this.jumpVelocity = 0;
-    }
-
+    this.moveDirection.addInPlace(this.gravityDirection);
     this.mesh.moveWithCollisions(this.moveDirection);
-
-    
-    //console.log(this.getMinCoordinate());
-    GlobalManager.camera.target = this.mesh.position;
+    this.gravityDirection.set(0, 0, 0);
+    //console.log(this.moveDirection);
   }
+
+  applyGravity() {
+    if (!this.currentPlanet) return;
+    
+    const origin = this.mesh.position.clone();
+    const rayLength = 1;
+
+    if (!this.checkIfGrounded()) {
+      this.gravityDirection = this.normalVector.normalize().scale(this.gravity * GlobalManager.deltaTime);
+    } else {
+      this.gravityDirection.set(0, 0, 0);
+      this.isJumping = false; // reset pour les sauts
+    }
+    
+   // Ray 1 : vers le bas (opposé à up)
+    let direction = getUpVector(this.mesh).scale(-1);
+    let hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+      mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+    );
+  
+    // Ray 2 : vers l'avant
+    if (!hits || hits.length === 0) {
+      direction = getForwardVector(this.mesh);
+      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      );
+    }
+  
+    // Ray 3 : vers l'arrière
+    if (!hits || hits.length === 0) {
+      direction = getForwardVector(this.mesh).scale(-1);
+      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      );
+    }
+  
+    // Ray 4 : vers la droite
+    if (!hits || hits.length === 0) {
+      direction = getRightVector(this.mesh);
+      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      );
+    }
+  
+    // Ray 5 : vers la gauche
+    if (!hits || hits.length === 0) {
+      direction = getRightVector(this.mesh).scale(-1);
+      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      );
+    }
+  
+    // Ray 6 : direction vers la planète
+    if (!hits || hits.length === 0) {
+      this.planetDir = this.currentPlanet.position.subtract(this.mesh.position).normalize();
+      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, this.planetDir, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      );
+    }
+  
+    this.getPlanetNormal();
+  
+    //this.mesh.moveWithCollisions(this.gravityDirection);
+  
+    this.hits = [];
+  }
+  
+  checkIfGrounded() {
+    const origin = this.mesh.position.clone();
+    const direction = this.normalVector.clone();
+    const rayLength = 0.6;
+  
+    const ray = new Ray(origin, direction, rayLength);
+    const pick = GlobalManager.scene.pickWithRay(ray, (mesh) =>
+      mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+    );
+  
+    return pick && pick.hit;
+  }
+  
+
+  getPlanetNormal() {
+    if (!this.currentPlanet) return;
+  
+    this.normalVector = this.currentPlanet.position.subtract(this.mesh.position).normalize();
+
+    for (let hit of this.hits) {
+      if (hit.pickedMesh === this.currentPlanet) {
+        const n = hit.getNormal(true);
+        if (n) {
+          this.normalVector = n.normalize();
+          console.log("Normal Vector: ", this.normalVector);
+          break;
+        }
+      }
+    }
+  }
+  
+
+  applyPlanetRotation() {
+    const currentUp = getUpVector(this.mesh);
+    const axis = Vector3.Cross(currentUp, this.normalVector).normalize();
+    const angle = Vector3.GetAngleBetweenVectors(currentUp, this.normalVector, axis);
+  
+    const qRot = Quaternion.RotationAxis(axis, angle);
+    const targetRotation = qRot.multiply(this.mesh.rotationQuaternion);
+  
+    Quaternion.SlerpToRef(
+      this.mesh.rotationQuaternion,
+      targetRotation,
+      this.rotationSpeed * GlobalManager.deltaTime,
+      this.mesh.rotationQuaternion
+    );
+    
+  }
+  
 
   createEllipsoidLines(a,b) {
     const points = [];
@@ -195,13 +291,8 @@ class Player {
       ellipse[i].rotation.y = i * dTheta;
     }
   }
-  //get MinCoordinate of the mesh
-  getMinCoordinate() {
-    const boundingBox = this.mesh.getBoundingInfo().boundingBox;
-    const min = boundingBox.minimumWorld;
-    return new Vector3(min.x, min.y, min.z);
-  }
-
+  
+  
   getDistPlanetPlayer(planet) {
     
     if (DEBUG_MODE) {
@@ -216,9 +307,6 @@ class Player {
     return this.mesh.position.subtract(planet.position);
   }
   
-  getPlayerPositionOnPLanet(planet){
-    
-  }
 
 }
 export default Player;

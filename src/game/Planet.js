@@ -23,6 +23,10 @@ class Planet {
         this.mesh.position = this.position;
         this.mesh.checkCollisions = true;
         
+        //create Cube marche pas
+        //this.mesh = MeshBuilder.CreateBox("cubePlanet",{size: 10},GlobalManager.scene)
+        //this.mesh.position = this.position
+        //this.mesh.checkCollisions = true;
         //add shadow
         GlobalManager.addShadowCaster(this.mesh, true);
     }
