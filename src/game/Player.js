@@ -28,11 +28,10 @@ class Player {
   tmpRotationSpeed;
   speed;
   gravity = 9.8;
-  gravityDirection = new Vector3(0, 0, 0);
+  gravityVelocity = new Vector3(0, 0, 0);
   tmpGravity;
   jumpForce = 20;
   currentPlanet;
-  distLinePlanetToPlayer;
   //rayCast
   hits = [];
 
@@ -40,7 +39,7 @@ class Player {
   normalVector = new Vector3(0, 0, 0);
   //============================
   jumpVelocity = 0;
-  isJumping = true;
+  isJumping = false;
   cameraTarget;
   lookDirectionQuaternion = new Quaternion.Identity();
 
@@ -55,7 +54,6 @@ class Player {
     this.mesh.position = new Vector3(100, 60, 60);
     this.mesh.ellipsoid = new Vector3(0.4, 0.5, 0.4);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
-    this.mesh.checkCollisions = false;
     
     if (!this.mesh.rotationQuaternion) {
       this.mesh.rotationQuaternion = Quaternion.Identity();
@@ -66,8 +64,8 @@ class Player {
     }
 
     let camera = new ArcRotateCamera("playerCamera", -Math.PI / 2, 3 * Math.PI / 10, 10, this.mesh.position, GlobalManager.scene);
-    camera.lowerBetaLimit = 0.01 // ou 0.01 si tu veux éviter qu'elle s'inverse complètement
-    camera.upperBetaLimit = null;
+    //camera.upVector = this.normalVector.clone();
+  
     
 
 
@@ -93,11 +91,10 @@ class Player {
     this.currentPlanet = planet;
     this.getInputs(inputMap, actions);
     this.applyCameraToInput(inputMap);
-    this.move();
     this.applyGravity();
     this.applyPlanetRotation();
-  
-    this.getDistPlanetPlayer(this.currentPlanet);
+    this.adjustCameraUpVector();
+    this.move();
   }
 
   
@@ -110,12 +107,12 @@ class Player {
     if (inputMap["KeyW"]) this.moveInput.z = 1;
     if (inputMap["KeyS"]) this.moveInput.z = -1;
 
-    if (actions["Space"] && !this.isJumping ) {
-      //console.log("jump");
-      this.jumpVelocity = this.jumpForce;
+    if (actions["Space"] && !this.isJumping) {
+      this.gravityVelocity = this.normalVector.scale(-this.jumpForce);
       this.isJumping = true;
       actions["Space"] = false;
     }
+    
 
     if (inputMap["leftStickX"] !== undefined && Math.abs(inputMap["leftStickX"]) > 0.15) {
       this.moveInput.x = inputMap["leftStickX"];
@@ -135,203 +132,173 @@ class Player {
   applyCameraToInput() {
     this.moveDirection.set(0, 0, 0);
   
-    if (this.moveInput.length() !== 0) {
-      let forward = getForwardVector(GlobalManager.camera, true);
-      let right = getRightVector(GlobalManager.camera, true);
+    if (this.moveInput.length() !== 0 ) {
+      let forward = getForwardVector(GlobalManager.camera, true).normalize();
+      let right = getRightVector(GlobalManager.camera, true).normalize();
   
       forward.scaleInPlace(this.moveInput.z);
       right.scaleInPlace(this.moveInput.x);
   
-      let moveDir = forward.add(right);
-      let tangent = moveDir.subtract(this.normalVector.scale(Vector3.Dot(moveDir, this.normalVector)));
-      
-      //console.log("Tangent: ", tangent, "Normal: ", this.normalVector, "MoveDir: ", moveDir);
-      if (tangent.length() > 0.001) {
-        this.moveDirection = tangent.normalize();
-  
-        if (this.moveDirection.length() > 0.001 && this.normalVector.length() > 0.001) {
-          //this.lookDirectionQuaternion = this.lookDirectionQuaternion.multiply(Quaternion.RotationAxis(this.moveDirection, Math.PI / 2));
-          //Quaternion.FromLookDirectionLHToRef(this.moveDirection, this.normalVector, this.lookDirectionQuaternion);  
-          // Calcul du vecteur tangent sur la planète
-            let moveDir = forward.add(right);
-            let tangent = moveDir.subtract(this.normalVector.scale(Vector3.Dot(moveDir, this.normalVector)));
+      this.moveDirection = forward.add(right);
 
-            if (tangent.length() > 0.001) {
-              this.moveDirection = tangent.normalize();
-
-              // 💡 Tourne autour de la normale uniquement
-              const up = this.normalVector.scale(-1); // Le haut du perso = vers l'opposé de la gravité
-              const rotationMatrix = Matrix.RotationAxis(up, Math.atan2(-this.moveDirection.x, -this.moveDirection.z));
-
-              this.lookDirectionQuaternion = Quaternion.FromRotationMatrix(rotationMatrix);
-            }
-
-        }
+        
+      Quaternion.FromLookDirectionLHToRef(this.moveDirection, this.normalVector, this.lookDirectionQuaternion);
+        
       }
     }
-  }
+
   
   
   move() {
     if (!this.mesh) return;
 
+    const finalMove = new Vector3(0, 0, 0);
+
     if (this.moveDirection.length() !== 0) {
       Quaternion.SlerpToRef(this.mesh.rotationQuaternion, this.lookDirectionQuaternion, SPEED_ROTATION * GlobalManager.deltaTime, this.mesh.rotationQuaternion);
       this.moveDirection.scaleInPlace(SPEED * GlobalManager.deltaTime);
+      finalMove.addInPlace(this.moveDirection);
     }
-    this.moveDirection.addInPlace(this.gravityDirection);
-    this.mesh.moveWithCollisions(this.moveDirection);
-    this.gravityDirection.set(0, 0, 0);
-    //console.log(this.moveDirection);
+    
+    const gravityMove = this.gravityVelocity.scale(GlobalManager.deltaTime);
+    finalMove.addInPlace(gravityMove);
+    this.mesh.moveWithCollisions(finalMove);
   }
 
   applyGravity() {
-    if (!this.currentPlanet) return;
+    //if (!this.currentPlanet) return;
     
     const origin = this.mesh.position.clone();
-    const rayLength = 1;
+    const rayLength = 2;
 
-    if (!this.checkIfGrounded()) {
-      this.gravityDirection = this.normalVector.normalize().scale(this.gravity * GlobalManager.deltaTime);
-    } else {
-      this.gravityDirection.set(0, 0, 0);
-      this.isJumping = false; // reset pour les sauts
-    }
+    
     
    // Ray 1 : vers le bas (opposé à up)
     let direction = getUpVector(this.mesh).scale(-1);
-    let hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
-      mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+    this.drawRay(origin, direction, rayLength, new Color3(1, 0, 0)); // rouge
+    this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+      mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
     );
   
     // Ray 2 : vers l'avant
-    if (!hits || hits.length === 0) {
+    if (!this.hits || this.hits.length === 0) {
       direction = getForwardVector(this.mesh);
-      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
-        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      this.drawRay(origin, direction, rayLength, new Color3(1, 0, 0)); // rouge
+      this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
       );
     }
   
     // Ray 3 : vers l'arrière
-    if (!hits || hits.length === 0) {
+    if (!this.hits || this.hits.length === 0) {
       direction = getForwardVector(this.mesh).scale(-1);
-      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
-        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      this.drawRay(origin, direction, rayLength, new Color3(1, 0, 0)); // rouge
+      this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
       );
     }
   
     // Ray 4 : vers la droite
-    if (!hits || hits.length === 0) {
+    if (!this.hits || this.hits.length === 0) {
       direction = getRightVector(this.mesh);
-      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
-        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      this.drawRay(origin, direction, rayLength, new Color3(1, 0, 0)); // rouge
+      this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
       );
     }
   
     // Ray 5 : vers la gauche
-    if (!hits || hits.length === 0) {
+    if (!this.hits || this.hits.length === 0) {
       direction = getRightVector(this.mesh).scale(-1);
-      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
-        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+      this.drawRay(origin, direction, rayLength, new Color3(1, 0, 0)); // rouge
+      this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
       );
     }
   
     // Ray 6 : direction vers la planète
-    if (!hits || hits.length === 0) {
-      this.planetDir = this.currentPlanet.position.subtract(this.mesh.position).normalize();
-      hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, this.planetDir, rayLength), (mesh) =>
-        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+    if (!this.hits || this.hits.length === 0) {
+      this.planetDir = this.currentPlanet.position.subtract(this.mesh.position);
+      this.drawRay(origin, this.planetDir, rayLength, new Color3(1, 0, 0)); // rouge
+      this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, this.planetDir, rayLength), (mesh) =>
+        mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
       );
     }
   
     this.getPlanetNormal();
-  
-    //this.mesh.moveWithCollisions(this.gravityDirection);
-  
-    this.hits = [];
-  }
-  
-  checkIfGrounded() {
-    const origin = this.mesh.position.clone();
-    const direction = this.normalVector.clone();
-    const rayLength = 0.6;
-  
-    const ray = new Ray(origin, direction, rayLength);
-    const pick = GlobalManager.scene.pickWithRay(ray, (mesh) =>
-      mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions
+    //gravity direction
+    
+    if (!this.normalVector) return;
+
+    // appliquer accélération gravitationnelle
+    const gravityAccel = this.normalVector.scale(this.gravity * GlobalManager.deltaTime);
+    this.gravityVelocity.addInPlace(gravityAccel);
+
+    // Check sol (raycast vers la planète)
+    const rayToPlanet = new Ray(origin, this.normalVector.negate(), 0.7);
+    const hit = GlobalManager.scene.pickWithRay(rayToPlanet, (mesh) =>
+      mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
     );
-  
-    return pick && pick.hit;
+
+    if (hit && hit.hit) {
+      // On touche le sol
+      this.gravityVelocity.set(0, 0, 0);
+      this.isJumping = false;
+    }
+    
+      this.hits = [];
   }
+  
+
   
 
   getPlanetNormal() {
     if (!this.currentPlanet) return;
   
     this.normalVector = this.currentPlanet.position.subtract(this.mesh.position).normalize();
-
+    
     for (let hit of this.hits) {
-      if (hit.pickedMesh === this.currentPlanet) {
-        const n = hit.getNormal(true);
+      //console.log("Hit: ", hit.pickedMesh.name, "name: ", this.currentPlanet.mesh.name); 
+      let planetName = this.currentPlanet.mesh.name;
+      let pickedMeshName = hit.pickedMesh.name;
+      //console.log("Hit: ", pickedMeshName, "name: ", planetName ,"logique: ", pickedMeshName === planetName);
+      if (pickedMeshName === planetName) {
+        const n = hit.getNormal(true); 
+        //console.log("Normal: ", n);
         if (n) {
           this.normalVector = n.normalize();
-          console.log("Normal Vector: ", this.normalVector);
+          //console.log("Normal Vector: ", this.normalVector);
           break;
         }
       }
     }
+    return;
   }
   
 
   applyPlanetRotation() {
-    if (!this.mesh || !this.normalVector) return;
+    const currentUp = getUpVector(this.mesh);
+    const axis = Vector3.Cross(currentUp, this.normalVector).normalize();
+    const angle = Vector3.GetAngleBetweenVectors(currentUp, this.normalVector, axis);
   
-    const currentUp = getUpVector(this.mesh); // On veut que le perso regarde à l'opposé de la gravité
-    const desiredUp = this.normalVector.scale(-1); // On veut que le perso regarde à l'opposé de la gravité
-  
-    // Vérifie si déjà aligné
-    const dot = Vector3.Dot(currentUp, desiredUp);
-    if (dot > 0.9999) return;
-  
-    // Axe de rotation
-    let axis = Vector3.Cross(currentUp, desiredUp);
-  
-    if (axis.length() < 0.001 || isNaN(axis.x)) {
-      axis = Vector3.Cross(currentUp, new Vector3(1, 0, 0));
-      if (axis.length() < 0.001) {
-        axis = Vector3.Cross(currentUp, new Vector3(0, 0, 1));
-      }
-    }
-    axis.normalize();
-  
-    // Angle de rotation
-    const angle = Math.acos(Math.min(Math.max(dot, -1), 1)); // clamp entre -1 et 1
-  
-    // Quaternion de rotation
     const qRot = Quaternion.RotationAxis(axis, angle);
     const targetRotation = qRot.multiply(this.mesh.rotationQuaternion);
   
-    if (this.isValidQuaternion(targetRotation)) {
-      Quaternion.SlerpToRef(
-        this.mesh.rotationQuaternion,
-        targetRotation,
-        this.rotationSpeed * GlobalManager.deltaTime,
-        this.mesh.rotationQuaternion
-      );
-    } else {
-      console.warn("Quaternion invalide");
-    }
+    Quaternion.SlerpToRef(
+      this.mesh.rotationQuaternion,
+      targetRotation,
+      this.rotationSpeed * GlobalManager.deltaTime,
+      this.mesh.rotationQuaternion
+    );
+    
   }
   
+  adjustCameraUpVector() {
+    if (!this.normalVector || !GlobalManager.camera) return;
   
-  
-  isValidQuaternion(quat) {
-    return (
-      !isNaN(quat.x) &&
-      !isNaN(quat.y) &&
-      !isNaN(quat.z) &&
-      !isNaN(quat.w)
-    );
+    const currentUp = GlobalManager.camera.upVector;
+    const targetUp = this.normalVector;
+    GlobalManager.camera.upVector = Vector3.Lerp(currentUp, targetUp, GlobalManager.deltaTime * this.rotationSpeed);
   }
   
   createEllipsoidLines(a,b) {
@@ -369,6 +336,27 @@ class Player {
     return this.mesh.position.subtract(planet.position);
   }
   
+  drawRay(origin, direction, length = 1, color = new Color3(1, 1, 0)) {
+    const points = [
+      origin,
+      origin.add(direction.normalize().scale(length))
+    ];
+  
+    const rayLine = MeshBuilder.CreateLines("rayLine", {
+      points: points ,
+    }, GlobalManager.scene);
+  
+    rayLine.color = color;
+    rayLine.isPickable = false;
+    rayLine.doNotSyncBoundingInfo = true;
+    
+    // optionnel : durée de vie
+    setTimeout(() => {
+      rayLine.dispose();
+    }, 500); // disparaît après 0.5s
+  }
+  
 
 }
+
 export default Player;

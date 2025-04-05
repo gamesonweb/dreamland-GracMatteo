@@ -43,13 +43,10 @@ export default class Game {
 
     async init() {
         GlobalManager.engine.displayLoadingUI();
-        
-        
-        
         await this.createScene();
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet(100,9.8,new Vector3(10,0,10))
+        this.planet = new Planet(100,9.8,new Vector3(10,10,10))
         await this.planet.init()
         this.player = new Player();   
         await this.player.init();
