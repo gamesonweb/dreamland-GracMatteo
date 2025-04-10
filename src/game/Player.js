@@ -151,23 +151,26 @@ class Player {
 
     const finalMove = new Vector3(0, 0, 0);
 
+    const gravityMove = this.gravityVelocity.scale(GlobalManager.deltaTime);
+    finalMove.addInPlace(gravityMove);
+    
+
     if (this.moveDirection.length() !== 0) {
       Quaternion.SlerpToRef(this.mesh.rotationQuaternion, this.lookDirectionQuaternion, SPEED_ROTATION * GlobalManager.deltaTime, this.mesh.rotationQuaternion);
       this.moveDirection.scaleInPlace(SPEED * GlobalManager.deltaTime);
       finalMove.addInPlace(this.moveDirection);
     }
     
-    const gravityMove = this.gravityVelocity.scale(GlobalManager.deltaTime);
-    finalMove.addInPlace(gravityMove);
     this.mesh.moveWithCollisions(finalMove);
+    
   }
 
   applyGravity() {
     // Si besoin, décommentez la ligne suivante pour vérifier qu'une planète est définie
     // if (!this.currentPlanet) return;
     
-    const origin = this.mesh.position.clone();
-    const rayLength = 2;
+    const origin = this.mesh.position
+    const rayLength = 1;
 
     // Ray 1 : vers le bas (opposé à up)
     let direction = getUpVector(this.mesh).scale(-1);
@@ -175,7 +178,7 @@ class Player {
     this.hits = GlobalManager.scene.multiPickWithRay(new Ray(origin, direction, rayLength), (mesh) =>
       mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
     );
-  
+    
     // Ray 2 : vers l'avant
     if (!this.hits || this.hits.length === 0) {
       direction = getForwardVector(this.mesh);
@@ -264,7 +267,7 @@ class Player {
       let planetName = this.currentPlanet.mesh.name;
       let pickedMeshName = hit.pickedMesh.name;
       if (pickedMeshName === planetName) {
-        const n = hit.getNormal(true); 
+        const n = hit.getNormal().normalize(); 
         if (n) {
           this.normalVector = n.normalize();
           break;
@@ -275,10 +278,12 @@ class Player {
   }
 
   applyPlanetRotation() {
-    const currentUp = getUpVector(this.mesh);
+    const currentUp = getUpVector(this.mesh,true);
+    drawRay(this.mesh.position, currentUp, 1, new Color3(0, 1, 0)); // vert
     const axis = Vector3.Cross(currentUp, this.normalVector).normalize();
+    drawRay(this.mesh.position, axis, 1, new Color3(0, 0, 1)); // bleu
     const angle = Vector3.GetAngleBetweenVectors(currentUp, this.normalVector, axis);
-  
+    drawRay(this.mesh.position, this.normalVector, 1, new Color3(0, 1, 1)); // cyan
     const qRot = Quaternion.RotationAxis(axis, angle);
     const targetRotation = qRot.multiply(this.mesh.rotationQuaternion);
   
@@ -302,7 +307,6 @@ class Player {
   getDistPlanetPlayer(planet) {
     let direction = this.mesh.position.subtract(planet.position);
     if (DEBUG_MODE) {
-      
       drawRay(this.mesh.position, planet.position,direction);
     }
     return this.mesh.position.subtract(planet.position);
