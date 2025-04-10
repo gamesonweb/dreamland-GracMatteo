@@ -8,11 +8,12 @@ class Planet {
     mesh;
     radius;
     gravity;
-    radiusGravitation;
+    gravityFieldRadius;
     position = new Vector3(0,0,0);
 
     constructor(radius,gravity,position){
         this.radius = radius
+        this.gravityFieldRadius = radius * 3;
         this.gravity = gravity
         this.position = position
     }
@@ -28,7 +29,7 @@ class Planet {
         this.mesh.position = this.position;
         this.mesh.checkCollisions = true;
     
-        const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.radius * 3 }, GlobalManager.scene);
+        const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.gravityFieldRadius }, GlobalManager.scene);
         gravityField.parent = this.mesh;
 
         // Create a transparent material for the gravity field
