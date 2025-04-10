@@ -46,7 +46,7 @@ export default class Game {
         await this.createScene();
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet(100,9.8,new Vector3(10,10,10))
+        this.planet = new Planet(20,9.8,new Vector3(10,10,10))
         await this.planet.init()
         this.player = new Player();   
         await this.player.init();
@@ -118,39 +118,12 @@ export default class Game {
 
         GlobalManager.addShadowGenerator(shadowGenSun);
 
-        var ground = MeshBuilder.CreateGround("ground", {width: 30, height: 30}, GlobalManager.scene);
-        var groundMaterial = new StandardMaterial("groundMaterial");
-        groundMaterial.diffuseColor = new Color3( 0, 0, 1);
-        ground.material = groundMaterial
-        ground.receiveShadows = true;
-        ground.checkCollisions = true;
-        
         if (DEBUG_MODE){
             
             this.axesWorld = new AxesViewer(GlobalManager.scene, 4);
-            //ground grid pour debug
-            var groundMaterial = new GridMaterial("groundMaterial");
-            groundMaterial.diffuseColor = new Color3(0, 0, 1);
-            ground.material = groundMaterial;    
+               
         }
         
-        let mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
-        mesh.position.y = 1;
-        mesh.checkCollisions = true;
-        GlobalManager.addShadowCaster(mesh, true);
-        
-        let mesh2 = MeshBuilder.CreateCylinder("cylinder", { height: 2, diameter: 0.5 }, GlobalManager.scene);
-        mesh2.position.y = 1;
-        mesh2.position.x = 5;
-        mesh2.receiveShadows = true;
-        mesh2.checkCollisions = true;
-
-        const material = new BABYLON.StandardMaterial("mat", GlobalManager.scene);
-        material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-        mesh2.material = material;
-
-        GlobalManager.addShadowCaster(mesh2);
-        this.createObstacles();
     }
     
     initKeyboard(){
@@ -195,46 +168,7 @@ export default class Game {
         }
     }
 
-    createObstacles(){
-        // Créer un mur
-        const wall = MeshBuilder.CreateBox("wall", { width: 3, height: 1, depth: 0.2 }, GlobalManager.scene);
-        wall.position = new Vector3(0, 0.5, 2);
-        wall.checkCollisions = true;
-        //wall.receiveShadows = true;
-        const wallMaterial = new StandardMaterial("wallMaterial", GlobalManager.scene);
-        wallMaterial.diffuseColor = new Color3(0.7, 0.3, 0.3);
-        wall.material = wallMaterial;
-        GlobalManager.addShadowCaster(wall, true);
-        // Créer une colonne
-        const column = MeshBuilder.CreateCylinder("column", { height: 2, diameter: 0.5 }, GlobalManager.scene);
-        column.position = new Vector3(-2, 1, -1);
-        column.checkCollisions = true;
-        //column.receiveShadows = true;
-        GlobalManager.addShadowCaster(column, true);
-        const columnMaterial = new StandardMaterial("columnMaterial", GlobalManager.scene);
-        columnMaterial.diffuseColor = new Color3(0.3, 0.7, 0.3);
-        column.material = columnMaterial;
-        
-        // Créer une boîte
-        const box = MeshBuilder.CreateBox("box", { size: 0.8 }, GlobalManager.scene);
-        box.position = new Vector3(2, 0.4, -1);
-        box.checkCollisions = true;
-        //box.receiveShadows = true;
-        const boxMaterial = new StandardMaterial("boxMaterial", GlobalManager.scene);
-        boxMaterial.diffuseColor = new Color3(0.3, 0.3, 0.7);
-        box.material = boxMaterial;
-        GlobalManager.addShadowCaster(box, true);
-        
-        const mesh = MeshBuilder.CreateBox("box", { size: 1 }, GlobalManager.scene);
-        mesh.position.y = 1;
-        //mesh.receiveShadows = true;
-        GlobalManager.addShadowCaster(mesh, true);
-
-        mesh.checkCollision = true;
-        wall.checkCollisions = true;
-        column.checkCollisions = true;
-        box.checkCollisions = true;        
-    }
+    
 
     getPlanetPosition(){
         return this.planet.position

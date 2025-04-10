@@ -138,10 +138,15 @@ class Player {
   
       forward.scaleInPlace(this.moveInput.z);
       right.scaleInPlace(this.moveInput.x);
-  
-      this.moveDirection = forward.add(right);
 
-        
+      // Somme des directions pour obtenir la direction brute
+      let rawDirection = forward.add(right);
+  
+      // Projection sur le plan tangent à la surface (éliminer la composante selon la normale)
+      const dot = Vector3.Dot(rawDirection, this.normalVector);
+      const projectedDirection = rawDirection.subtract(this.normalVector.scale(dot)).normalize();
+  
+      this.moveDirection = projectedDirection;  
       Quaternion.FromLookDirectionLHToRef(this.moveDirection, this.normalVector, this.lookDirectionQuaternion);
         
       }
