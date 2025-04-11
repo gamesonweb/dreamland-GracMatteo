@@ -20,14 +20,14 @@ class Planet {
 
     async init(){
         //create sphere
-        //this.mesh = MeshBuilder.CreateSphere("planet",{diameter : this.radius * 2},GlobalManager.scene)
-        //this.mesh.position = this.position;
-        //this.mesh.checkCollisions = true;
-        
-        //create Cube
-        this.mesh = MeshBuilder.CreateBox("cubePlanet", { size: 10 }, GlobalManager.scene);
+        this.mesh = MeshBuilder.CreateSphere("planet",{diameter : this.radius * 2},GlobalManager.scene)
         this.mesh.position = this.position;
         this.mesh.checkCollisions = true;
+        
+        //create Cube
+        //this.mesh = MeshBuilder.CreateBox("cubePlanet", { size: 10 }, GlobalManager.scene);
+        //this.mesh.position = this.position;
+        //this.mesh.checkCollisions = true;
     
         const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.gravityFieldRadius }, GlobalManager.scene);
         gravityField.parent = this.mesh;

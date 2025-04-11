@@ -2,14 +2,13 @@ import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCam
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
-import Ammo from 'ammo.js'; 
 
 import Player from './Player.js';
 import Planet from './planet.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
-var DEBUG_MODE = true;
+var DEBUG_MODE = true; // Set to true to enable debug mode
 
 export default class Game {
     
@@ -95,7 +94,9 @@ export default class Game {
         
         GlobalManager.scene = new Scene(GlobalManager.engine);
         GlobalManager.scene.clearColor = new Color4(0,0,0,0);
-        GlobalManager.scene.collisionsEnabled = true;
+        //GlobalManager.scene.collisionsEnabled = true;
+        //var physicsPlugin = new CannonJSPlugin();
+        //GlobalManager.scene.enablePhysics(new Vector3(0, -9.81, 0), physicsPlugin);
         //GlobalManager.scene.enablePhysics(new Vector3(0, -10, 0), new AmmoJSPlugin(true, Ammo));
 
         //faire un cameraManager
