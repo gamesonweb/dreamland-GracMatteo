@@ -15,10 +15,10 @@ function drawRay(origin, direction, length = 1, color = new Color3(1, 1, 0)) {
     rayLine.isPickable = false;
     rayLine.doNotSyncBoundingInfo = true;
     
-    // optionnel : durée de vie
+    //durée de vie
     setTimeout(() => {
       rayLine.dispose();
-    }, 500); // disparaît après 0.5s
+    }, 500); // disparait apres 0.5s
   }
 
   function createEllipsoidLines(mesh,a, b) {

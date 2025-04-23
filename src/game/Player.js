@@ -27,10 +27,11 @@ class Player {
   rotationSpeed = 5;
   tmpRotationSpeed;
   speed;
-  gravity = 9.8;
+  //
+  gravity = -9.8;
   gravityVelocity = new Vector3(0, 0, 0);
   tmpGravity;
-  jumpForce = -20;
+  jumpForce = 7;
   currentPlanet;
   //rayCast
   hits = [];
@@ -48,12 +49,12 @@ class Player {
 
   constructor() {}
 
-  async init() {
+  async init(planet) {
     const result = await SceneLoader.ImportMeshAsync("", pathPlayerGLB, PlayerGLB, GlobalManager.scene);
     this.mesh = result.meshes[0];
     this.mesh.name = "player";
     // this.mesh = MeshBuilder.CreateBox("player", {size: 1}, GlobalManager.scene);
-    this.mesh.position = new Vector3(20, 30, 20);
+    this.mesh.position = new Vector3(20, 25, 20);
     this.mesh.ellipsoid = new Vector3(0.5, 0.5, 0.5);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     
@@ -74,7 +75,8 @@ class Player {
     GlobalManager.camera.attachControl(GlobalManager.engine.getRenderingCanvas(), true);
 
     this.applyCameraToInput();
-
+    
+    
     this.tmpGravity = this.gravity;
     this.tmpRotationSpeed = this.rotationSpeed;
     
@@ -112,10 +114,10 @@ class Player {
     }
     
     if (inputMap["leftStickX"] !== undefined && Math.abs(inputMap["leftStickX"]) > 0.15) {
-      this.moveInput.x = inputMap["leftStickX"];
+      this.moveInput.x = inputMap["leftStickX"] * GlobalManager.deltaTime;
     }
     if (inputMap["leftStickY"] !== undefined && Math.abs(inputMap["leftStickY"]) > 0.15) {
-      this.moveInput.z = -inputMap["leftStickY"];
+      this.moveInput.z = -inputMap["leftStickY"] * GlobalManager.deltaTime;
     }
 
     if (inputMap["rightStickX"] !== undefined && Math.abs(inputMap["rightStickX"]) > 0.15) {
@@ -124,12 +126,18 @@ class Player {
     if (inputMap["rightStickY"] !== undefined && Math.abs(inputMap["rightStickY"]) > 0.15) {
       GlobalManager.camera.beta -= inputMap["rightStickY"] * GlobalManager.deltaTime;
     }
+
+    if (actions["buttonX"] && !this.isJumping) {
+      console.log("Jump triggered by gamepad button X");
+      this.jump();
+      actions["buttonX"] = false;
+    }
   }
   
   // Méthode dédiée pour déclencher le saut
   jump() {
     // Applique une impulsion dans la direction opposée à la normale (donc vers le haut)
-    this.gravityVelocity = this.normalVector.scale(-this.jumpForce);
+    this.gravityVelocity = this.normalVector.scale(this.jumpForce);
     this.isJumping = true;
   }
 
@@ -177,8 +185,10 @@ class Player {
     // if (!this.currentPlanet) return;
     
     const origin = this.mesh.position;
-    const rayLength = 1;
+    //cela faisais beuguer la rotation du perso
 
+      const rayLength = this.currentPlanet ? this.currentPlanet.radius : 10;
+    
     // Ray 1 : vers le bas (opposé à up)
     let direction = getUpVector(this.mesh).scale(-1);
     if(DEBUG_MODE) {
@@ -232,10 +242,10 @@ class Player {
       );
     }
     
-    //if (!this.isInGravityField()) {
+  
       // Ray 6 : direction vers la planète, si le joueur n'est pas déjà dans le champ de gravité
       if (this.hits.length === 0) {
-        this.planetDir = this.currentPlanet.position.subtract(this.mesh.position);
+        this.planetDir = this.currentPlanet.position.subtract(this.mesh.position).normalize();
         if(DEBUG_MODE) {
           drawRay(origin, this.planetDir, rayLength, new Color3(1, 0, 0));
         }
@@ -243,13 +253,14 @@ class Player {
         mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
         );
       }
+    
     //}
     
     // Recalcule la normale de la planète
     this.getPlanetNormal();
     
     // INTERPOLATION : on met à jour une normale interpolée pour décaler l'application de la gravité
-    const interpolationFactor = 0.1; // Facteur d'interpolation (entre 0 et 1)
+    const interpolationFactor = 0.15; // Facteur d'interpolation (entre 0 et 1)
     this.interpolatedNormal = Vector3.Lerp(this.interpolatedNormal, this.normalVector, interpolationFactor);
     
     // Appliquer la gravité en utilisant la normale interpolée
@@ -289,8 +300,8 @@ class Player {
             if(DEBUG_MODE) {
               drawRay(hit.pickedPoint, normalizedNormal, 2, new Color3(1, 1, 0));
             }
+            this.normalVector = normalizedNormal;
           }
-          this.normalVector = normalizedNormal;
           break;
         }
       }
@@ -301,7 +312,7 @@ class Player {
   applyPlanetRotation() {
     const currentUp = getUpVector(this.mesh, true).normalize();
     
-    const axis = Vector3.Cross(currentUp, this.normalVector);
+    const axis = Vector3.Cross(currentUp, this.normalVector).normalize();
     
     const angle = Vector3.GetAngleBetweenVectors(currentUp, this.normalVector, axis);
     
@@ -324,7 +335,7 @@ class Player {
   }
   
   adjustCameraUpVector() {
-    if (!this.normalVector || !GlobalManager.camera) return;
+    if (!this.normalVector || !GlobalManager.camera || this.isJumping) return;
   
     const currentUp = GlobalManager.camera.upVector;
     const targetUp = this.normalVector;

@@ -166,6 +166,18 @@ export default class Game {
             this.inputMap["rightStickX"] = rightStick.x;
             this.inputMap["rightStickY"] = rightStick.y;
             //console.log("leftStickX : "+leftStick.x + " leftStickY : "+leftStick.y);
+
+            const buttonCross = this.gamepad.buttonCross;
+            const buttonCircle = this.gamepad.buttonCircle;
+            const buttonSquare = this.gamepad.buttonSquare;
+            const buttonTriangle = this.gamepad.buttonTriangle;
+
+            this.actions["buttonX"] = buttonCross;
+            this.actions["buttonCircle"] = buttonCircle;
+            this.actions["buttonSquare"] = buttonSquare;
+            this.actions["buttonTriangle"] = buttonTriangle;
+            console.log("buttonX : "+this.actions["buttonX"] + " buttonCircle : "+this.actions["buttonCircle"]);
+            
         }
     }
 

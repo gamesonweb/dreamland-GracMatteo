@@ -25,7 +25,7 @@ class Planet {
         this.mesh.checkCollisions = true;
         
         //create Cube
-        //this.mesh = MeshBuilder.CreateBox("cubePlanet", { size: 10 }, GlobalManager.scene);
+        //this.mesh = MeshBuilder.CreateBox("cubePlanet", { size: 20 }, GlobalManager.scene);
         //this.mesh.position = this.position;
         //this.mesh.checkCollisions = true;
     
