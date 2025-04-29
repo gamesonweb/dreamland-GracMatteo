@@ -45,7 +45,7 @@ export default class Game {
         await this.createScene();
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet(20,9.8,new Vector3(10,10,10))
+        this.planet = new Planet(20,9.8,new Vector3(5,10,5))
         await this.planet.init()
         this.player = new Player();   
         await this.player.init();

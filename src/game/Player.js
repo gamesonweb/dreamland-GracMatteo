@@ -126,7 +126,9 @@ class Player {
     if (inputMap["rightStickY"] !== undefined && Math.abs(inputMap["rightStickY"]) > 0.15) {
       GlobalManager.camera.beta -= inputMap["rightStickY"] * GlobalManager.deltaTime;
     }
-
+    
+    //marche pas
+  
     if (actions["buttonX"] && !this.isJumping) {
       console.log("Jump triggered by gamepad button X");
       this.jump();
@@ -181,14 +183,20 @@ class Player {
   }
 
   applyGravity() {
-    // Si nécessaire, vérifier qu'une planète est définie
+    // Si nécessaire, vérifier qu'une planète est définie (si plusieurs planètes)
     // if (!this.currentPlanet) return;
-    
+    let rayChoiced;
     const origin = this.mesh.position;
-    //cela faisais beuguer la rotation du perso
+    //console.log(this.currentPlanet.mesh.name);
+    if(this.currentPlanet.mesh.name === "planet") {
+      rayChoiced = this.currentPlanet.radius;
+    }
+    else {
+      rayChoiced = 10;
+    }
 
-      const rayLength = this.currentPlanet ? this.currentPlanet.radius : 10;
-    
+    const rayLength = rayChoiced
+    //console.log(rayChoiced);
     // Ray 1 : vers le bas (opposé à up)
     let direction = getUpVector(this.mesh).scale(-1);
     if(DEBUG_MODE) {
