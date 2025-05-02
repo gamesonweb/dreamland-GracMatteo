@@ -1,12 +1,13 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap, DirectionalLight, GamepadManager, Gamepad} from '@babylonjs/core';
+import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap, DirectionalLight, GamepadManager, Gamepad, Mesh} from '@babylonjs/core';
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
-
+import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import Etoile from './Etoile.js';
 import Player from './Player.js';
-import Planet from './Planet.js';
+import Planet from './planet.js';
 import { GlobalManager } from './GlobalManager.js';
 import Object3D from './Object3D.js';
+import { ImportMeshAsync } from 'babylonjs';
 
 
 var DEBUG_MODE = true; // Set to true to enable debug mode
@@ -19,6 +20,7 @@ export default class Game {
 
     camera;
     light;
+    sky;
     axesWorld;
 
     startTimer;
@@ -46,14 +48,13 @@ export default class Game {
         await this.createScene();
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet(20,9.8,new Vector3(5,10,5))
+        this.planet = new Planet(5,9.8,new Vector3(5,10,5))
         await this.planet.init()
         this.player = new Player();   
         await this.player.init();
-        //this.etoile = new Etoile(new Vector3(17,15,15));
-        //await this.etoile.init();
-        this.etoile = new Etoile();
-        await this.etoile.loadGLB("./src/game/assets/","etoile.glb","etoile");
+        //faire un EtoileManager pour gerer les etoiles
+        this.etoile = new Etoile(new Vector3(20,20,20));
+        await this.etoile.init();
         GlobalManager.engine.hideLoadingUI();
     }
 
@@ -89,11 +90,12 @@ export default class Game {
         //rajouter les updates de toutes les entités
         this.player.update(this.inputMap,this.actions,this.planet);
         this.etoile.update();
+        //this.planet.update();
         this.startTimer += GlobalManager.deltaTime;
         //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
         
-        console.log("etoile",this.etoile)
+        //console.log("etoile",this.etoile)
         
     }
 
@@ -101,15 +103,8 @@ export default class Game {
         
         GlobalManager.scene = new Scene(GlobalManager.engine);
         GlobalManager.scene.clearColor = new Color4(0,0,0,0);
-        //GlobalManager.scene.collisionsEnabled = true;
-        //var physicsPlugin = new CannonJSPlugin();
-        //GlobalManager.scene.enablePhysics(new Vector3(0, -9.81, 0), physicsPlugin);
-        //GlobalManager.scene.enablePhysics(new Vector3(0, -10, 0), new AmmoJSPlugin(true, Ammo));
-
-        //faire un cameraManager
+        const skyBox = await SceneLoader.ImportMeshAsync("", "./src/game/assets/", "skyBox.glb", GlobalManager.scene);
         
-        //GlobalManager.camera = new FreeCamera("camera", new Vector3(0, 5, -10), GlobalManager.scene);
-        //GlobalManager.camera.attachControl(GlobalManager.canvas, true);
         
         
 
@@ -125,6 +120,15 @@ export default class Game {
         shadowGenSun.normalBias = 0.02;
 
         GlobalManager.addShadowGenerator(shadowGenSun);
+        /*
+        this.sky = MeshBuilder.CreateSphere("sky", {diameter: 1000, sideOrientation : Mesh.BACKSIDE }, GlobalManager.scene);
+        const skyMaterial = new GridMaterial("skyMaterial", GlobalManager.scene);
+        skyMaterial.mainColor = new Color3(0, 0.5, 0.5);
+        this.sky.material = skyMaterial;
+        */
+        
+        
+        
 
         if (DEBUG_MODE){
             
@@ -183,7 +187,7 @@ export default class Game {
             this.actions["buttonCircle"] = buttonCircle;
             this.actions["buttonSquare"] = buttonSquare;
             this.actions["buttonTriangle"] = buttonTriangle;
-            console.log("buttonX : "+this.actions["buttonX"] + " buttonCircle : "+this.actions["buttonCircle"]);
+            //console.log("buttonX : "+this.actions["buttonX"] + " buttonCircle : "+this.actions["buttonCircle"]);
             
         }
     }
