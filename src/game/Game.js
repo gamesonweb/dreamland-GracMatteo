@@ -2,9 +2,9 @@ import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCam
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 
-
+import Etoile from './Etoile.js';
 import Player from './Player.js';
-import Planet from './planet.js';
+import Planet from './Planet.js';
 import { GlobalManager } from './GlobalManager.js';
 
 
@@ -49,6 +49,8 @@ export default class Game {
         await this.planet.init()
         this.player = new Player();   
         await this.player.init();
+        this.etoile = new Etoile(new Vector3(17,15,15));
+        await this.etoile.init();
         GlobalManager.engine.hideLoadingUI();
     }
 

@@ -29,7 +29,10 @@ class Planet {
         this.mesh.position = this.position;
         this.mesh.checkCollisions = true;
         
-       
+        //create cylinder
+        //this.mesh = MeshBuilder.CreateCylinder("cylinder", {diameterTop: 30, diameterBottom: 30, height: 30}, GlobalManager.scene);
+        //this.mesh.position = this.position;
+        //this.mesh.checkCollisions = true;
 
         const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.gravityFieldRadius }, GlobalManager.scene);
         gravityField.parent = this.mesh;

@@ -58,6 +58,8 @@ class Player {
     this.mesh.ellipsoid = new Vector3(0.5, 0.5, 0.5);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     
+    //this.mesh.scaling = new Vector3(0.03, 0.03, -0.03);
+  
     if (!this.mesh.rotationQuaternion) {
       this.mesh.rotationQuaternion = Quaternion.Identity();
     }
