@@ -53,7 +53,7 @@ class Object3D {
     rotateY(rotationSpeed){
         let rotationDelta = rotationSpeed * GlobalManager.deltaTime;
         let rotationQuaternion = Quaternion.RotationAxis(new Vector3(0,1,0),rotationDelta);
-        this.meshEtoile.rotationQuaternion = this.meshEtoile.rotationQuaternion.multiply(rotationQuaternion);
+        this.mesh.rotationQuaternion = this.mesh.rotationQuaternion.multiply(rotationQuaternion);
     }
 
     loadGLB(path,modele,name){
