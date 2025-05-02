@@ -6,6 +6,7 @@ import Etoile from './Etoile.js';
 import Player from './Player.js';
 import Planet from './Planet.js';
 import { GlobalManager } from './GlobalManager.js';
+import Object3D from './Object3D.js';
 
 
 var DEBUG_MODE = true; // Set to true to enable debug mode
@@ -49,8 +50,10 @@ export default class Game {
         await this.planet.init()
         this.player = new Player();   
         await this.player.init();
-        this.etoile = new Etoile(new Vector3(17,15,15));
-        await this.etoile.init();
+        //this.etoile = new Etoile(new Vector3(17,15,15));
+        //await this.etoile.init();
+        this.etoile = new Etoile();
+        await this.etoile.loadGLB("./src/game/assets/","etoile.glb","etoile");
         GlobalManager.engine.hideLoadingUI();
     }
 
@@ -85,10 +88,12 @@ export default class Game {
         
         //rajouter les updates de toutes les entités
         this.player.update(this.inputMap,this.actions,this.planet);
+        this.etoile.update();
         this.startTimer += GlobalManager.deltaTime;
         //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
-
+        
+        console.log("etoile",this.etoile)
         
     }
 

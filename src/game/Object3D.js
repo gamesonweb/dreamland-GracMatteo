@@ -38,9 +38,9 @@ class Object3D {
             SceneLoader.ImportMeshAsync("", path,modele, GlobalManager.scene).then((result) => {
                 this.mesh = result.meshes[0];
                 this.mesh.name = name;
-                this.mesh.position = new Vector3(0, 0, 0);
+                this.mesh.position = new Vector3(17, 17, 17);
                 this.mesh.rotationQuaternion = Quaternion.Identity();
-                this.mesh.scaling = new Vector3(0.5,0.5,0.5);
+                this.mesh.scaling = new Vector3(1,1,1);
                 resolve(this.mesh);
             }).catch((error) => {
                 console.error("Error loading GLB:", error);
