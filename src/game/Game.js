@@ -4,7 +4,7 @@ import {Inspector} from "@babylonjs/inspector";
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import Etoile from './Etoile.js';
 import Player from './Player.js';
-import Planet from './planet.js';
+import Planet from './Planet.js';
 import { GlobalManager } from './GlobalManager.js';
 import Object3D from './Object3D.js';
 import { ImportMeshAsync } from 'babylonjs';
