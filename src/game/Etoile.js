@@ -2,7 +2,7 @@ import '@babylonjs/loaders';
 import Object3D from './Object3D';
 
 
-const pathEtoileGLB = "./src/game/assets/";
+const pathEtoileGLB = "/assets/";
 const etoileGLB = "etoile.glb";
 
 class Etoile extends Object3D{
