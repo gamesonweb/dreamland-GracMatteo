@@ -53,7 +53,7 @@ class Planet extends Object3D{
         this.meshPlanet.name = this.name;
         //add de la texture
         const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
-        planetTexture.diffuseTexture = new Texture("./src/game/assets/2k_mercury.jpg", GlobalManager.scene);
+        planetTexture.diffuseTexture = new Texture("/assets/2k_mercury.jpg", GlobalManager.scene);
         this.meshPlanet.material = planetTexture;
 
         //create Cube

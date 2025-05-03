@@ -107,7 +107,7 @@ export default class Game {
         
         GlobalManager.scene = new Scene(GlobalManager.engine);
         GlobalManager.scene.clearColor = new Color4(0,0,0,0);
-        const skyBox = await SceneLoader.ImportMeshAsync("", "./src/game/assets/", "skyBox.glb", GlobalManager.scene);
+        const skyBox = await SceneLoader.ImportMeshAsync("", "/assets/", "skyBox.glb", GlobalManager.scene);
         
         
         
