@@ -71,7 +71,7 @@ class Etoile extends Object3D{
     }
     
     update(){
-        //this.scaleDown(0.07);
+        this.scaleDown(0.07);
         this.move();
     }
 
