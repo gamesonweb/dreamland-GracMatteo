@@ -6,10 +6,6 @@ import { Quaternion, Vector4 } from 'babylonjs';
 import {DEBUG_MODE} from "./Game.js";
 
 
-
-
-
-const pathEtoileGLB = "/assets/";
 const pathEtoileGLB = "/assets/";
 const etoileGLB = "etoile.glb";
 
