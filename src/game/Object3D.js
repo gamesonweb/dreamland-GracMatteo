@@ -1,4 +1,4 @@
-import {Vector3,AxesViewer} from '@babylonjs/core';
+import {Vector3,AxesViewer,MeshBuilder} from '@babylonjs/core';
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders';
 
@@ -55,6 +55,16 @@ class Object3D {
         let rotationQuaternion = Quaternion.RotationAxis(new Vector3(0,1,0),rotationDelta);
         this.mesh.rotationQuaternion = this.mesh.rotationQuaternion.multiply(rotationQuaternion);
     }
+
+    CreateSphere(name,diameter){
+        this.mesh = MeshBuilder.CreateSphere(name,{diameter: diameter},GlobalManager.scene);
+        this.mesh.checkCollisions = true;
+        this.mesh.name = name;
+        return this.mesh;
+    }
+
+
+
 
     loadGLB(path,modele,name){
         return new Promise((resolve, reject) => {

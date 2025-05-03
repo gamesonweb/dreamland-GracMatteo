@@ -1,4 +1,4 @@
-import {Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3} from '@babylonjs/core';
+import {Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3,Texture} from '@babylonjs/core';
 import {GlobalManager} from './GlobalManager.js';
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import {ArcRotateCamera, Mesh, Quaternion, Ray} from "babylonjs";
@@ -28,6 +28,9 @@ class Planet extends Object3D{
 
     async init(){
         
+        
+        //probleme de deplacement du personnage car il passe a travers la planete des qu'il y a un petit denivelé
+        /*
         const planet = await this.loadGLB(pathplanetGLB,planetGLB);
         this.meshPlanet = planet;
         this.meshPlanet.name = this.name;
@@ -41,12 +44,18 @@ class Planet extends Object3D{
         }
         this.setPosition(this.position);
         this.setScale(new Vector3(this.radius,this.radius,this.radius));
-        
+        */
+
+
         //create sphere
-        //this.mesh = MeshBuilder.CreateSphere("planet",{diameter : this.radius * 2},GlobalManager.scene)
-        //this.mesh.position = this.position;
-        //this.mesh.checkCollisions = true;
-        
+        const planet = await this.CreateSphere("planet",this.radius);
+        this.meshPlanet = planet;
+        this.meshPlanet.name = this.name;
+        //add de la texture
+        const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
+        planetTexture.diffuseTexture = new Texture("./src/game/assets/2k_mercury.jpg", GlobalManager.scene);
+        this.meshPlanet.material = planetTexture;
+
         //create Cube
         //this.mesh = MeshBuilder.CreateBox("cubePlanet", { size: 20 }, GlobalManager.scene);
         //this.mesh.position = this.position;
