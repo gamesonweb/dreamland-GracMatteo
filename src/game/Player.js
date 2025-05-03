@@ -54,7 +54,7 @@ class Player {
     this.mesh = result.meshes[0];
     this.mesh.name = "player";
     // this.mesh = MeshBuilder.CreateBox("player", {size: 1}, GlobalManager.scene);
-    this.mesh.position = new Vector3(20, 25, 20);
+    this.mesh.position = new Vector3(20, 45, 20);
     this.mesh.ellipsoid = new Vector3(0.5, 0.5, 0.5);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     
@@ -99,6 +99,7 @@ class Player {
     this.applyGravity();
     this.applyPlanetRotation();
     this.adjustCameraUpVector();
+    this.adjustToTerrain();
   }
 
   getInputs(inputMap, actions) {
@@ -270,7 +271,7 @@ class Player {
     this.getPlanetNormal();
     
     // INTERPOLATION : on met à jour une normale interpolée pour décaler l'application de la gravité
-    const interpolationFactor = 0.15; // Facteur d'interpolation (entre 0 et 1)
+    const interpolationFactor = 0.15; // Facteur d'interpolation 
     this.interpolatedNormal = Vector3.Lerp(this.interpolatedNormal, this.normalVector, interpolationFactor);
     
     // Appliquer la gravité en utilisant la normale interpolée
@@ -278,7 +279,7 @@ class Player {
     this.gravityVelocity.addInPlace(gravityAccel);
     
     // Raycast pour détecter le sol (vers la planète)
-    const rayToPlanet = new Ray(origin, this.normalVector.negate(), 0.7);
+    const rayToPlanet = new Ray(origin, this.normalVector.negate(), 0.55);
     const hit = GlobalManager.scene.pickWithRay(rayToPlanet, (mesh) =>
       mesh !== this.mesh && mesh.isPickable && mesh.checkCollisions && this.mesh.ellipsoid
     );
@@ -300,7 +301,9 @@ class Player {
     
     for (let hit of this.hits) {
       let planetName = this.currentPlanet.mesh.name;
+      //console.log("planetName : "+planetName); 
       let pickedMeshName = hit.pickedMesh.name;
+      //console.log("pickedMeshName : "+pickedMeshName); 
       if (pickedMeshName === planetName) {
         const n = hit.getNormal(true, true).normalize();
         if (n) {
@@ -327,9 +330,9 @@ class Player {
     const angle = Vector3.GetAngleBetweenVectors(currentUp, this.normalVector, axis);
     
     if (DEBUG_MODE){      
-      drawRay(this.mesh.position, this.normalVector, 1, new Color3(0, 1, 1)); // cyan
-      drawRay(this.mesh.position, axis, 1, new Color3(0, 0, 1)); // bleu
-      drawRay(this.mesh.position, currentUp, 1, new Color3(0, 1, 0)); // vert
+      //drawRay(this.mesh.position, this.normalVector, 1, new Color3(0, 1, 1)); // cyan
+      //drawRay(this.mesh.position, axis, 1, new Color3(0, 0, 1)); // bleu
+      //drawRay(this.mesh.position, currentUp, 1, new Color3(0, 1, 0)); // vert
     }
     
     
@@ -356,7 +359,7 @@ class Player {
   getDistPlanetPlayer(planet) {
     let direction = this.mesh.position.subtract(planet.position);
     if (DEBUG_MODE) {
-      drawRay(this.mesh.position, planet.position, direction);
+      //drawRay(this.mesh.position, planet.position, direction);
     }
     return this.mesh.position.subtract(planet.position);
   }
@@ -369,6 +372,35 @@ class Player {
     const gravityFieldRadius = this.currentPlanet.gravityFieldRadius || 50;
     return distance <= gravityFieldRadius;
   }
+
+  /**
+ * Ajuste la position du joueur pour qu'il suive les petites irrégularités de la planète.
+ */
+adjustToTerrain() {
+  // 1) On part d'un point un peu au-dessus du joueur
+  const above = this.mesh.position.add(this.normalVector.scale(1));  // 2 unités au-dessus
+
+  // 2) On tire un rayon vers la planète (le long de la normale inversée)
+  const ray = new Ray(above, this.normalVector.negate(), 2); 
+  if (DEBUG_MODE) {
+    drawRay(above, this.normalVector.negate(), 2, new Color3(0, 1, 0)); // vert
+  }
+  // 3) On picke la planète seulement
+  const hit = GlobalManager.scene.multiPickWithRay(ray, (mesh) => 
+    mesh !== this.mesh &&  mesh.checkCollisions && this.mesh.ellipsoid 
+  );
+  setTimeout(() => {
+  console.log("hit : ", hit),
+  500
+  });
+  // 4) Si on touche bien la surface, on replace le joueur
+  if (hit && hit.hit && hit.pickedPoint) {
+    // Offset pour que l'ellipsoïde ne passe pas à travers le sol
+    const surfaceOffset = this.mesh.ellipsoidOffset.y * this.mesh.scaling.y;
+    this.mesh.position = hit.pickedPoint.add(this.normalVector.scale(surfaceOffset));
+  }
+}
+
 
 }
 
