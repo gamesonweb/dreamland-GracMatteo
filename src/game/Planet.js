@@ -5,7 +5,7 @@ import {ArcRotateCamera, Mesh, Quaternion, Ray} from "babylonjs";
 import Object3D from './Object3D.js';
 import {DEBUG_MODE} from "./Game.js";
 
-const pathplanetGLB = "./src/game/assets/";
+const pathplanetGLB = "/assets/";
 const planetGLB = "planetB.glb";
 
 class Planet extends Object3D{

@@ -5,7 +5,7 @@ import {Vector3} from '@babylonjs/core';
 import { Quaternion, Vector4 } from 'babylonjs';
 import {DEBUG_MODE} from "./Game.js";
 
-const pathEtoileGLB = "./src/game/assets/";
+const pathEtoileGLB = "/assets/";
 const etoileGLB = "etoile.glb";
 
 class Etoile extends Object3D{

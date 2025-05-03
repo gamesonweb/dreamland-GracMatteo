@@ -11,7 +11,7 @@ import Game from './Game.js';
 const SPEED = 5;
 const SPEED_ROTATION = 5;
 
-const pathPlayerGLB = "./src/game/assets/";
+const pathPlayerGLB = "/assets/";
 const PlayerGLB = "angryAntoine.glb"; 
 
 class Player {
