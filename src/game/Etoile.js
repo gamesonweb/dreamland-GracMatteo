@@ -23,12 +23,10 @@ class Etoile extends Object3D{
         //pour l'occilation
         this._baseY = position.y;
         this._time  = 0;
-          // 1 oscillation par seconde
 
     }
 
     async init(){
-        
         
         const etoile = await this.loadGLB(pathEtoileGLB,etoileGLB);
         this.meshEtoile = etoile;
@@ -37,7 +35,7 @@ class Etoile extends Object3D{
             this.setAxisDebug();
         }
         this.setPosition(this.position);
-        this.setRotationQuaternion(new Quaternion(0,1,0,0));
+        this.setRotationQuaternion(new Quaternion(0,1,0,0)); // Rotation quaternion for Y-axis
         this._baseY = this.meshEtoile.position.y;
     }
     /*
@@ -61,7 +59,6 @@ class Etoile extends Object3D{
     oscilation(amp,freq){
         this._time += GlobalManager.deltaTime;
 
-        this._time += GlobalManager.deltaTime;
         const y = this._baseY + Math.sin(2*Math.PI*freq*this._time)*amp;
         this.meshEtoile.position.y = y;
     }

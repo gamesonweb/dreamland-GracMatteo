@@ -31,7 +31,7 @@ class Player {
   gravity = -9.8;
   gravityVelocity = new Vector3(0, 0, 0);
   tmpGravity;
-  jumpForce = 7;
+  jumpForce = 12;
   currentPlanet;
   //rayCast
   hits = [];
@@ -376,21 +376,21 @@ class Player {
   /**
  * Ajuste la position du joueur pour qu'il suive les petites irrégularités de la planète.
  */
-adjustToTerrain() {
-  // 1) On part d'un point un peu au-dessus du joueur
-  const above = this.mesh.position.add(this.normalVector.scale(1));  // 2 unités au-dessus
+  adjustToTerrain() {
+    // 1) On part d'un point un peu au-dessus du joueur
+    const above = this.mesh.position.add(this.normalVector.scale(1));  // 2 unités au-dessus
 
-  // 2) On tire un rayon vers la planète (le long de la normale inversée)
-  const ray = new Ray(above, this.normalVector.negate(), 2); 
-  if (DEBUG_MODE) {
-    drawRay(above, this.normalVector.negate(), 2, new Color3(0, 1, 0)); // vert
-  }
-  // 3) On picke la planète seulement
-  const hit = GlobalManager.scene.multiPickWithRay(ray, (mesh) => 
-    mesh !== this.mesh &&  mesh.checkCollisions && this.mesh.ellipsoid 
+    // 2) On tire un rayon vers la planète (le long de la normale inversée)
+    const ray = new Ray(above, this.normalVector.negate(), 2); 
+    if (DEBUG_MODE) {
+      drawRay(above, this.normalVector.negate(), 2, new Color3(0, 1, 0)); // vert
+    }
+    // 3) On picke la planète seulement
+    const hit = GlobalManager.scene.multiPickWithRay(ray, (mesh) => 
+      mesh !== this.mesh &&  mesh.checkCollisions && this.mesh.ellipsoid 
   );
   setTimeout(() => {
-  console.log("hit : ", hit),
+  //console.log("hit : ", hit),
   500
   });
   // 4) Si on touche bien la surface, on replace le joueur

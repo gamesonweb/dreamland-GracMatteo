@@ -1,7 +1,6 @@
 import Game from "./game/Game.js";
 import {Engine} from '@babylonjs/core';
 
-import Ammo from 'ammo.js';
 
 let engine;
 let canvas;
