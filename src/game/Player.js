@@ -10,6 +10,7 @@ import Game from './Game.js';
 
 const SPEED = 5;
 const SPEED_ROTATION = 5;
+const JUMP_FORCE = 12;
 
 const pathPlayerGLB = "/assets/";
 const PlayerGLB = "angryAntoine.glb"; 
@@ -31,7 +32,7 @@ class Player {
   gravity = -9.8;
   gravityVelocity = new Vector3(0, 0, 0);
   tmpGravity;
-  jumpForce = 12;
+  jumpForce = JUMP_FORCE;
   currentPlanet;
   //rayCast
   hits = [];
