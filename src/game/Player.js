@@ -10,7 +10,7 @@ import Game from './Game.js';
 
 const SPEED = 5;
 const SPEED_ROTATION = 5;
-const JUMP_FORCE = 12;
+const JUMP_FORCE = 10;
 
 const pathPlayerGLB = "/assets/";
 const PlayerGLB = "angryAntoine.glb"; 

@@ -26,8 +26,6 @@ class EtoileManager {
         const minOffset = 1;
         const maxOffset = 3;
         
-        
-
         const spawnEtoile = async () => {
             if (this.etoiles.lenght >= MAX_ETOILES) return;
             
@@ -38,7 +36,7 @@ class EtoileManager {
             ).normalize(); // Normalize the direction vector
             
             const distance = 
-                (this.currentPlanet.radius - 20) +
+                (this.currentPlanet.radius/2) +
                 minOffset +
                 Math.random() * (maxOffset - minOffset); // Random distance from the planet
     
@@ -56,23 +54,30 @@ class EtoileManager {
 
     }
 
-    async popEtoile() {
+    async popEtoile(player) {
+    
         this.etoiles.forEach(etoile => {
             if(etoile.meshEtoile.scaling.x < 0.1) {
                 this.etoiles.splice(this.etoiles.indexOf(etoile), 1);
                 etoile.meshEtoile.dispose(); // Dispose of the mesh to free up memory
             }
-
+            //console.log("intersect",etoile.meshEtoile.intersectsMesh(playerMesh,false))
+            if(etoile.meshEtoile.getChildren()[0].intersectsMesh(player.mesh,false)){
+                //console.log("etoile intersected with player");
+                this.etoiles.splice(this.etoiles.indexOf(etoile), 1);
+                etoile.meshEtoile.dispose(); // Dispose of the mesh to free up memory
+            }
+        
         });
     }
 
-    update() {
-        for (let i = 0; i < this.etoiles.length; i++) {
-            this.etoiles[i].update();
-            this.popEtoile();
-            
-        }
+    update(player) {
         
+        this.etoiles.forEach(etoile => {
+            etoile.update();
+            this.popEtoile(player) // Move each star
+        });
+
         console.log("etoiles",this.etoiles.length);
     }
 

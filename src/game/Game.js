@@ -11,7 +11,7 @@ import { ImportMeshAsync } from 'babylonjs';
 import EtoileManager from './EtoileManager.js';
 
 
-var DEBUG_MODE = true; // Set to true to enable debug mode
+var DEBUG_MODE = false; // Set to true to enable debug mode
 
 export default class Game {
     
@@ -90,7 +90,7 @@ export default class Game {
         
         //rajouter les updates de toutes les entités
         this.player.update(this.inputMap,this.actions,this.planet);
-        this.etoileManager.update();
+        this.etoileManager.update(this.player);
         //this.planet.update();
         this.startTimer += GlobalManager.deltaTime;
         //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
@@ -144,7 +144,7 @@ export default class Game {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
                     this.inputMap[kbInfo.event.code] = true;
-                    console.log("keyDOWN"+kbInfo.event.code);
+                    //console.log("keyDOWN"+kbInfo.event.code);
                     break;
                 case KeyboardEventTypes.KEYUP :
                     this.inputMap[kbInfo.event.code] = false;
