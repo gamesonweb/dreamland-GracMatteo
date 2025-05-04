@@ -6,7 +6,8 @@ class GlobalManager {
     engine;
     canvas;
     scene;
-    
+    audioEngine;
+
     sunAngle = 0;
     sunTranslation = 0;
     rayon = 30;

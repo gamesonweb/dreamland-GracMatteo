@@ -7,7 +7,7 @@ import Player from './Player.js';
 import Planet from './Planet.js';
 import { GlobalManager } from './GlobalManager.js';
 import Object3D from './Object3D.js';
-import { ImportMeshAsync } from 'babylonjs';
+import { CreateAudioEngineAsync, ImportMeshAsync } from 'babylonjs';
 import EtoileManager from './EtoileManager.js';
 
 
@@ -106,6 +106,7 @@ export default class Game {
         GlobalManager.scene.clearColor = new Color4(0,0,0,0);
         const skyBox = await SceneLoader.ImportMeshAsync("", "/assets/", "skyBox.glb", GlobalManager.scene);
         
+        GlobalManager.audioEngine = await CreateAudioEngineAsync();
         
         
 
