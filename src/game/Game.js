@@ -11,7 +11,7 @@ import { CreateAudioEngineAsync, ImportMeshAsync } from 'babylonjs';
 import EtoileManager from './EtoileManager.js';
 
 
-var DEBUG_MODE = false; // Set to true to enable debug mode
+var DEBUG_MODE = true; // Set to true to enable debug mode
 
 export default class Game {
     

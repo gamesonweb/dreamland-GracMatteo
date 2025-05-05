@@ -3,10 +3,11 @@ import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders';
 import {getForwardVector, getRightVector, getUpVector} from "./getDirectionMesh.js";
 import {drawRay, createEllipsoidLines} from "./debugDraw.js";
-import {ArcRotateCamera, Quaternion, Ray} from "babylonjs";
+import {ArcRotateCamera, Quaternion, Ray, TrailMesh} from "babylonjs";
 import {DEBUG_MODE} from "./Game.js";
 import {GlobalManager} from './GlobalManager.js';
 import Game from './Game.js';
+import Score from './Score.js';
 
 const SPEED = 5;
 const SPEED_ROTATION = 5;
@@ -20,6 +21,10 @@ class Player {
   scene;
   camera;
   axies;
+
+  score;
+
+  trail;
 
   moveInput = new Vector3(0, 0, 0);
   moveDirection = new Vector3(0, 0, 0);
@@ -59,8 +64,13 @@ class Player {
     this.mesh.ellipsoid = new Vector3(0.5, 0.5, 0.5);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     
+    this.score = new Score("Mario-Land3D")
     //this.mesh.scaling = new Vector3(0.03, 0.03, -0.03);
-  
+    
+
+    //bizarre
+    //this.initTrail();
+
     if (!this.mesh.rotationQuaternion) {
       this.mesh.rotationQuaternion = Quaternion.Identity();
     }
@@ -70,15 +80,13 @@ class Player {
     }
 
     let camera = new ArcRotateCamera("playerCamera", -Math.PI / 2, 3 * Math.PI / 10, 10, this.mesh.position, GlobalManager.scene);
-    // Optionnel : adapter l'upVector de la caméra en fonction de la normale
-    // camera.upVector = this.normalVector.clone();
+    
     
     GlobalManager.camera = camera;
     GlobalManager.addShadowCaster(this.mesh, true);
     GlobalManager.camera.attachControl(GlobalManager.engine.getRenderingCanvas(), true);
 
     this.applyCameraToInput();
-    
     
     this.tmpGravity = this.gravity;
     this.tmpRotationSpeed = this.rotationSpeed;
@@ -93,14 +101,15 @@ class Player {
   }
 
   update(inputMap, actions, planet) {
-    this.currentPlanet = planet;
+    this.currentPlanet = planet;  
     this.getInputs(inputMap, actions);
     this.applyCameraToInput(inputMap);
     this.move();
     this.applyGravity();
     this.applyPlanetRotation();
     this.adjustCameraUpVector();
-    this.adjustToTerrain();
+    //essayer de d'ajuster par rapport a une heightmap
+    //this.adjustToTerrain();
   }
 
   getInputs(inputMap, actions) {
@@ -378,31 +387,47 @@ class Player {
  * Ajuste la position du joueur pour qu'il suive les petites irrégularités de la planète.
  */
   adjustToTerrain() {
-    // 1) On part d'un point un peu au-dessus du joueur
-    const above = this.mesh.position.add(this.normalVector.scale(1));  // 2 unités au-dessus
+      // 1) On part d'un point un peu au-dessus du joueur
+      const above = this.mesh.position.add(this.normalVector.scale(1));  // 2 unités au-dessus
 
-    // 2) On tire un rayon vers la planète (le long de la normale inversée)
-    const ray = new Ray(above, this.normalVector.negate(), 2); 
-    if (DEBUG_MODE) {
-      drawRay(above, this.normalVector.negate(), 2, new Color3(0, 1, 0)); // vert
-    }
-    // 3) On picke la planète seulement
-    const hit = GlobalManager.scene.multiPickWithRay(ray, (mesh) => 
-      mesh !== this.mesh &&  mesh.checkCollisions && this.mesh.ellipsoid 
-  );
-  setTimeout(() => {
-  //console.log("hit : ", hit),
-  500
-  });
-  // 4) Si on touche bien la surface, on replace le joueur
-  if (hit && hit.hit && hit.pickedPoint) {
-    // Offset pour que l'ellipsoïde ne passe pas à travers le sol
-    const surfaceOffset = this.mesh.ellipsoidOffset.y * this.mesh.scaling.y;
-    this.mesh.position = hit.pickedPoint.add(this.normalVector.scale(surfaceOffset));
+      // 2) On tire un rayon vers la planète (le long de la normale inversée)
+      const ray = new Ray(above, this.normalVector.negate(), 2); 
+      if (DEBUG_MODE) {
+        drawRay(above, this.normalVector.negate(), 2, new Color3(0, 1, 0)); // vert
+      }
+      // 3) On picke la planète seulement
+      const hit = GlobalManager.scene.multiPickWithRay(ray, (mesh) => 
+        mesh !== this.mesh &&  mesh.checkCollisions && this.mesh.ellipsoid 
+    );
+    setTimeout(() => {
+    //console.log("hit : ", hit),
+    500
+    });
+    // 4) Si on touche bien la surface, on replace le joueur
+      if (hit && hit.hit && hit.pickedPoint) {
+        // Offset pour que l'ellipsoïde ne passe pas à travers le sol
+        const surfaceOffset = this.mesh.ellipsoidOffset.y * this.mesh.scaling.y;
+        this.mesh.position = hit.pickedPoint.add(this.normalVector.scale(surfaceOffset));
+      }
   }
-}
 
+  initTrail() {
+    let options = { 
+      diameter: 1, // Largeur de la traînée
+      length: 50, // Longueur de la traînée
+      segments : 10,
+      sections: 4,
+      doNotTaper :false,
+      autoStart : true,
+    };  
+  
+    this.trail = new TrailMesh("trail", this.mesh, GlobalManager.scene, options);
 
+    const sourceMat = new StandardMaterial("sourceMat", GlobalManager.scene);
+    sourceMat.emissiveColor = sourceMat.diffuseColor = new Color3(1, 0, 0); // Couleur rouge
+    sourceMat.specularColor = Color3.Black(); // Pas de réflexion
+    this.trail.material = sourceMat;
+  }
 }
 
 export default Player;

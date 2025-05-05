@@ -5,6 +5,7 @@ import {Vector3} from '@babylonjs/core';
 import { Quaternion, Sound, Vector4 } from 'babylonjs';
 import {DEBUG_MODE} from "./Game.js";
 import Etoile from './Etoile.js';
+import Score from './Score.js';
 
 const MAX_ETOILES = 10; // Maximum number of stars
 
@@ -19,7 +20,7 @@ class EtoileManager {
     }
 
     async init(planet) {
-        
+        //ne fonctionne pas
         //load sound
         this.collectSound = new Sound(
             "collect_star",
@@ -46,12 +47,13 @@ class EtoileManager {
                 Math.random() * 2 - 1, // Random x direction
                 Math.random() * 2 - 1, // Random y direction
                 Math.random() * 2 - 1  // Random z direction
-            ).normalize(); // Normalize the direction vector
+            ).normalize(); // Normalize the random direction vector
             
             const distance = 
-                (this.currentPlanet.radius/2) +
-                minOffset +
-                Math.random() * (maxOffset - minOffset); // Random distance from the planet
+                (this.currentPlanet.radius/2) + // Planet radius
+                minOffset + // Minimum distance from the planet
+                Math.random() * (maxOffset - minOffset); // Random range around the planet
+                // Random distance from the planet
     
             const spawnPos = this.currentPlanet.position.add(dir.scale(distance)); // Calculate the spawn position
 
@@ -72,11 +74,18 @@ class EtoileManager {
         this.etoiles.forEach(etoile => {
             if(etoile.meshEtoile.scaling.x < 0.1) {
                 this.etoiles.splice(this.etoiles.indexOf(etoile), 1);
-                etoile.meshEtoile.dispose(); // Dispose of the mesh to free up memory
+                etoile.meshEtoile.dispose();
+                return; // eviter des erreurs dans la console 
             }
             //console.log("intersect",etoile.meshEtoile.intersectsMesh(playerMesh,false))
             if(etoile.meshEtoile.getChildren()[0].intersectsMesh(player.mesh,false)){
                 //console.log("etoile intersected with player");
+                
+                // Update score in the console (a faire avec le GUI de Babylon.js)
+                player.score.updateScore(1);
+                
+                
+                //console.log(player.score) // Update the score when the star is collected
                 this.collectSound.play(); // Play the sound when the star is collected
                 this.etoiles.splice(this.etoiles.indexOf(etoile), 1);
                 etoile.meshEtoile.dispose(); // Dispose of the mesh to free up memory
@@ -92,7 +101,7 @@ class EtoileManager {
             this.popEtoile(player) 
         });
 
-        console.log("etoiles",this.etoiles.length);
+        //console.log("etoiles",this.etoiles.length);
     }
 
 
