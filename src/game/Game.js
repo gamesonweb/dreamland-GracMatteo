@@ -9,7 +9,7 @@ import { GlobalManager } from './GlobalManager.js';
 import Object3D from './Object3D.js';
 import { CreateAudioEngineAsync, ImportMeshAsync } from 'babylonjs';
 import EtoileManager from './EtoileManager.js';
-
+import * as GUI from '@babylonjs/gui';
 
 var DEBUG_MODE = false; // Set to true to enable debug mode
 
@@ -29,6 +29,8 @@ export default class Game {
     player;
     planet;
     dist;
+
+    gui;
 
     inputMap = {};
     actions = {}
@@ -56,6 +58,8 @@ export default class Game {
         await this.player.init();
         this.etoileManager = new EtoileManager();
         await this.etoileManager.init(this.planet);
+        // a faire gerer pas le GameManager ???
+        this.initGUI(this.player.score);
         GlobalManager.engine.hideLoadingUI();
     }
 
@@ -92,6 +96,7 @@ export default class Game {
         this.player.update(this.inputMap,this.actions,this.planet);
         this.etoileManager.update(this.player);
         //this.planet.update();
+        this.onScoreUpdate(this.player.score.getScore());   
         this.startTimer += GlobalManager.deltaTime;
         //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
@@ -107,6 +112,7 @@ export default class Game {
         const skyBox = await SceneLoader.ImportMeshAsync("", "/assets/", "skyBox.glb", GlobalManager.scene);
         
         GlobalManager.audioEngine = await CreateAudioEngineAsync();
+        
         
         
 
@@ -194,7 +200,27 @@ export default class Game {
         }
     }
 
-    
+    initGUI() {
+        this.gui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        const panel = new GUI.StackPanel("panel");
+        panel.width = "220px";
+        panel.height = "100px";
+        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.gui.addControl(panel);
+        
+        const textBlock = new GUI.TextBlock("text", "Score : " + this.player.score.getScore());
+        textBlock.color = "white";
+        textBlock.fontSize = 24;
+        panel.addControl(textBlock);
+    }
+
+    onScoreUpdate(score) {
+        const textBlock = this.gui.getControlByName("text");
+        if (textBlock) {
+            textBlock.text = "Score : " + score;
+        }
+    }   
 
     getPlanetPosition(){
         return this.planet.position
