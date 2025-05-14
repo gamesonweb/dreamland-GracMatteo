@@ -1,6 +1,10 @@
 # BabylonGame
 
-BabylonGame is a 3D game built using the Babylon.js framework. This project features a player navigating a 3D environment, interacting with objects, and experiencing physics-based mechanics. Below is an overview of the most important features of the game.
+# Participant 
+Grac Matteo
+Mannoci Mickael
+Fountir Mohamed
+
 
 ## Features
 
