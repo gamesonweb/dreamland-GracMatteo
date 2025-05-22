@@ -124,7 +124,7 @@ class Player {
     // Si la touche espace est pressée et que le personnage n'est pas déjà en saut, déclenche le saut
     if (actions["Space"] && !this.isJumping) {
       this.jump();
-      actions["Space"] = false;
+      //actions["Space"] = false;
     }
     
     if (inputMap["leftStickX"] !== undefined && Math.abs(inputMap["leftStickX"]) > 0.15) {
@@ -141,12 +141,10 @@ class Player {
       GlobalManager.camera.beta -= inputMap["rightStickY"] * GlobalManager.deltaTime;
     }
     
-    //marche pas
-  
-    if (actions["buttonX"] && !this.isJumping) {
+    if (actions["buttonx"] !== undefined && actions["buttonx"] && !this.isJumping) {
       console.log("Jump triggered by gamepad button X");
       this.jump();
-      actions["buttonX"] = false;
+
     }
   }
   

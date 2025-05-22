@@ -87,9 +87,9 @@ export default class Game {
 
             GlobalManager.update();
             //console.log("delta time : "+DELTA_TIME )
-            this.update();
             this.handleGamepadInput();
-             
+            this.update();
+            
             this.actions = {};
             GlobalManager.scene.render(); 
             
@@ -193,17 +193,18 @@ export default class Game {
             this.inputMap["rightStickY"] = rightStick.y;
             //console.log("leftStickX : "+leftStick.x + " leftStickY : "+leftStick.y);
 
-            const buttonCross = this.gamepad.buttonCross;
+            //const buttonCross = this.gamepad.buttonCross;
+            //console.log(buttonCross)
             const buttonCircle = this.gamepad.buttonCircle;
             const buttonSquare = this.gamepad.buttonSquare;
             const buttonTriangle = this.gamepad.buttonTriangle;
 
-            this.actions["buttonX"] = buttonCross;
+            this.actions["buttonx"] = this.gamepad.buttonCross;
             this.actions["buttonCircle"] = buttonCircle;
             this.actions["buttonSquare"] = buttonSquare;
             this.actions["buttonTriangle"] = buttonTriangle;
             //console.log("buttonX : "+this.actions["buttonX"] + " buttonCircle : "+this.actions["buttonCircle"]);
-            
+            console.log(this.actions)
         }
     }
 
