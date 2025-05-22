@@ -10,8 +10,13 @@ import Object3D from './Object3D.js';
 import { CreateAudioEngineAsync, ImportMeshAsync } from 'babylonjs';
 import EtoileManager from './EtoileManager.js';
 import * as GUI from '@babylonjs/gui';
+import { SoundManager } from './SoundManager.js';
 
 var DEBUG_MODE = false; // Set to true to enable debug mode
+
+
+const music = "/assets/sounds/1-25. Super Mario Galaxy.mp3"
+
 
 export default class Game {
     
@@ -50,6 +55,7 @@ export default class Game {
     async init() {
         GlobalManager.engine.displayLoadingUI();
         await this.createScene();
+        SoundManager.init();        
         this.initKeyboard();
         this.initGamepad();
         this.planet = new Planet(50,9.8,new Vector3(0,0,0))
@@ -61,6 +67,7 @@ export default class Game {
         // a faire gerer pas le GameManager ???
         this.initGUI(this.player.score);
         GlobalManager.engine.hideLoadingUI();
+        SoundManager.playMusic("music",music)
     }
 
     getDistPlanetPlayer(playerPosition, planetPosition) {

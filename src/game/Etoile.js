@@ -63,11 +63,6 @@ class Etoile extends Object3D{
         this.meshEtoile.position.y = y;
     }
     
-    isIntersectWithPlayer(){
-        
-    }
-
-
     move(){
         this.rotateY(0.3);
         this.oscilation(0.1,1);    
