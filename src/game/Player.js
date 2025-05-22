@@ -34,7 +34,7 @@ class Player {
   tmpRotationSpeed;
   speed;
   //
-  gravity = -9.8;
+  
   gravityVelocity = new Vector3(0, 0, 0);
   tmpGravity;
   jumpForce = JUMP_FORCE;
@@ -88,7 +88,8 @@ class Player {
 
     this.applyCameraToInput();
     
-    this.tmpGravity = this.gravity;
+    this.currentPlanet = planet
+    this.tmpGravity = this.currentPlanet.gravity;
     this.tmpRotationSpeed = this.rotationSpeed;
     
     if (DEBUG_MODE) {
@@ -285,7 +286,7 @@ class Player {
     this.interpolatedNormal = Vector3.Lerp(this.interpolatedNormal, this.normalVector, interpolationFactor);
     
     // Appliquer la gravité en utilisant la normale interpolée
-    const gravityAccel = this.interpolatedNormal.scale(this.gravity * GlobalManager.deltaTime);
+    const gravityAccel = this.interpolatedNormal.scale(this.currentPlanet.gravity * GlobalManager.deltaTime);
     this.gravityVelocity.addInPlace(gravityAccel);
     
     // Raycast pour détecter le sol (vers la planète)

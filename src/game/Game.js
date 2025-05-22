@@ -58,10 +58,10 @@ export default class Game {
         SoundManager.init();        
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet(50,9.8,new Vector3(0,0,0))
+        this.planet = new Planet(50,-9.8,new Vector3(0,0,0))
         await this.planet.init()
         this.player = new Player();   
-        await this.player.init();
+        await this.player.init(this.planet);
         this.etoileManager = new EtoileManager();
         await this.etoileManager.init(this.planet);
         // a faire gerer pas le GameManager ???
