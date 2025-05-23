@@ -2,14 +2,9 @@ import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCam
 import {GridMaterial} from "@babylonjs/materials";
 import {Inspector} from "@babylonjs/inspector";
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
-import Etoile from './Etoile.js';
-import Player from './Player.js';
-import Planet from './Planet.js';
 import { GlobalManager } from './GlobalManager.js';
-import Object3D from './Object3D.js';
-import { CreateAudioEngineAsync, ImportMeshAsync } from 'babylonjs';
-import EtoileManager from './EtoileManager.js';
 import * as GUI from '@babylonjs/gui';
+import Level1 from './Level1.js';
 import { SoundManager } from './SoundManager.js';
 
 var DEBUG_MODE = false; // Set to true to enable debug mode
@@ -59,26 +54,15 @@ export default class Game {
 
     async init() {
         GlobalManager.engine.displayLoadingUI();
-        await this.createScene();
+        this.currentLevel = new Level1(); 
+        await this.currentLevel.init();
         SoundManager.init();        
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet("sphere",50,-9.8,new Vector3(0,0,0))
-        await this.planet.init()
-        this.planet2 = new Planet("cube",10,-5.8, new Vector3(0,50,0))
-        await this.planet2.init();
-        this.player = new Player();   
-        await this.player.init(this.planet);
-        this.etoileManager = new EtoileManager();
-        await this.etoileManager.init(this.planet);
         // a faire gerer pas le GameManager ???
-        this.initGUI(this.player.score);
+        this.initGUI(this.currentLevel.player.score);
         GlobalManager.engine.hideLoadingUI();
         SoundManager.playMusic("music",music)
-    }
-
-    getDistPlanetPlayer(playerPosition, planetPosition) {
-        return playerPosition.subtract(planetPosition);
     }
 
     async start() {
@@ -107,62 +91,18 @@ export default class Game {
         //console.log("inputMap in Update of Game :"+this.inputMap)
         
         //rajouter les updates de toutes les entités
-        this.checkCurrentPlanet();
-        this.player.update(this.inputMap,this.actions,this.currentPlanet);
-        this.etoileManager.update(this.player);
-        //this.planet.update();
-        this.onScoreUpdate(this.player.score.getScore());   
+        this.currentLevel.player.update(this.inputMap,this.actions,this.currentLevel.currentPlanet);
+        this.currentLevel.update(this.currentLevel.player);
+        this.onScoreUpdate(this.currentLevel.player.score.getScore());   
         this.startTimer += GlobalManager.deltaTime;
-        this.checkCurrentPlanet();
-        //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
+       
+        //console.log(this.getDistPlanetPlayer(this.currentLevel.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
         //console.log(SoundManager)
         //console.log("etoile",this.etoile)
         
     }
 
-    async createScene() {
-        
-        GlobalManager.scene = new Scene(GlobalManager.engine);
-        GlobalManager.scene.clearColor = new Color4(0,0,0,0);
-        const skyBox = await SceneLoader.ImportMeshAsync("", "/assets/", "skyBox.glb", GlobalManager.scene);
-        
-    
-        
-        
-        
-
-        // Create a directional light to simulate the sun
-        this.sunLight = new DirectionalLight("sunLight", new Vector3(0, -10, -10), GlobalManager.scene);
-        this.sunLight.position = new Vector3(0, 10, 0);
-        this.sunLight.intensity = 1;
-        GlobalManager.addLight(this.sunLight);
-
-        const light =new DirectionalLight("sunLight", new Vector3(0, 10, 10), GlobalManager.scene);
-        GlobalManager.addLight(light)
-
-        let shadowGenSun = new ShadowGenerator(2048, this.sunLight);
-        shadowGenSun.useExponentialShadowMap = true;
-        shadowGenSun.bias = 0.01;
-        shadowGenSun.normalBias = 0.02;
-
-        GlobalManager.addShadowGenerator(shadowGenSun);
-        /*
-        this.sky = MeshBuilder.CreateSphere("sky", {diameter: 1000, sideOrientation : Mesh.BACKSIDE }, GlobalManager.scene);
-        const skyMaterial = new GridMaterial("skyMaterial", GlobalManager.scene);
-        skyMaterial.mainColor = new Color3(0, 0.5, 0.5);
-        this.sky.material = skyMaterial;
-        */
-        
-        
-        
-
-        if (DEBUG_MODE){
-            this.axesWorld = new AxesViewer(GlobalManager.scene, 4);
-               
-        }
-        
-    }
     
     initKeyboard(){
         GlobalManager.scene.onKeyboardObservable.add((kbInfo) => {
@@ -228,7 +168,7 @@ export default class Game {
         panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
         this.gui.addControl(panel);
         
-        const textBlock = new GUI.TextBlock("text", "Score : " + this.player.score.getScore());
+        const textBlock = new GUI.TextBlock("text", "Score : " + this.currentLevel.player.score.getScore());
         textBlock.color = "white";
         textBlock.fontSize = 24;
         panel.addControl(textBlock);
@@ -241,22 +181,6 @@ export default class Game {
         }
     }   
 
-    getPlanetPosition(){
-        return this.planet.position
-    }
     
-    checkCurrentPlanet(){
-        
-        if (this.planet.meshPlanet.getChildren()[0].intersectsMesh(this.player.mesh,false)){
-            console.log("je suis dans la planete spherique")
-            this.currentPlanet = this.planet;
-        }
-
-        if(this.planet2.mesh.getChildren()[0].intersectsMesh(this.player.mesh,false)){
-            console.log("planet cubique")
-            this.currentPlanet = this.planet2;
-        }
-
-    }
 }
 export {DEBUG_MODE};

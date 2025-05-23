@@ -90,6 +90,7 @@ class Player {
     this.applyCameraToInput();
     
     this.currentPlanet = planet
+    console.log("currentPlanet : ", this.currentPlanet);
     this.tmpGravity = this.currentPlanet.gravity;
     this.tmpRotationSpeed = this.rotationSpeed;
     
