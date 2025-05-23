@@ -63,7 +63,12 @@ class Object3D {
         return this.mesh;
     }
 
-
+    CreateCube(name,size){
+        this.mesh = MeshBuilder.CreateBox(name,{size : size })
+        this.mesh.checkCollisions = true;
+        this.mesh.name = name;
+        return this.mesh;
+    }
 
 
     loadGLB(path,modele,name){

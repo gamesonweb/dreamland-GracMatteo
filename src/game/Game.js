@@ -33,6 +33,9 @@ export default class Game {
     
     player;
     planet;
+    planet2;
+    currentPlanet;
+    planetManager;
     dist;
 
     gui;
@@ -47,6 +50,8 @@ export default class Game {
     gamepadManager;
     gamepad;
 
+    currentLevel;   
+
     constructor(engine,canvas) {
         GlobalManager.engine = engine;
         GlobalManager.canvas = canvas;
@@ -58,8 +63,10 @@ export default class Game {
         SoundManager.init();        
         this.initKeyboard();
         this.initGamepad();
-        this.planet = new Planet(50,-9.8,new Vector3(0,0,0))
+        this.planet = new Planet("sphere",50,-9.8,new Vector3(0,0,0))
         await this.planet.init()
+        this.planet2 = new Planet("cube",10,-5.8, new Vector3(0,50,0))
+        await this.planet2.init();
         this.player = new Player();   
         await this.player.init(this.planet);
         this.etoileManager = new EtoileManager();
@@ -100,14 +107,16 @@ export default class Game {
         //console.log("inputMap in Update of Game :"+this.inputMap)
         
         //rajouter les updates de toutes les entités
-        this.player.update(this.inputMap,this.actions,this.planet);
+        this.checkCurrentPlanet();
+        this.player.update(this.inputMap,this.actions,this.currentPlanet);
         this.etoileManager.update(this.player);
         //this.planet.update();
         this.onScoreUpdate(this.player.score.getScore());   
         this.startTimer += GlobalManager.deltaTime;
+        this.checkCurrentPlanet();
         //console.log(this.getDistPlanetPlayer(this.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
-        
+        //console.log(SoundManager)
         //console.log("etoile",this.etoile)
         
     }
@@ -118,7 +127,7 @@ export default class Game {
         GlobalManager.scene.clearColor = new Color4(0,0,0,0);
         const skyBox = await SceneLoader.ImportMeshAsync("", "/assets/", "skyBox.glb", GlobalManager.scene);
         
-        GlobalManager.audioEngine = await CreateAudioEngineAsync();
+    
         
         
         
@@ -128,7 +137,10 @@ export default class Game {
         this.sunLight.position = new Vector3(0, 10, 0);
         this.sunLight.intensity = 1;
         GlobalManager.addLight(this.sunLight);
-        
+
+        const light =new DirectionalLight("sunLight", new Vector3(0, 10, 10), GlobalManager.scene);
+        GlobalManager.addLight(light)
+
         let shadowGenSun = new ShadowGenerator(2048, this.sunLight);
         shadowGenSun.useExponentialShadowMap = true;
         shadowGenSun.bias = 0.01;
@@ -146,7 +158,6 @@ export default class Game {
         
 
         if (DEBUG_MODE){
-            
             this.axesWorld = new AxesViewer(GlobalManager.scene, 4);
                
         }
@@ -204,7 +215,7 @@ export default class Game {
             this.actions["buttonSquare"] = buttonSquare;
             this.actions["buttonTriangle"] = buttonTriangle;
             //console.log("buttonX : "+this.actions["buttonX"] + " buttonCircle : "+this.actions["buttonCircle"]);
-            console.log(this.actions)
+            //console.log(this.actions)
         }
     }
 
@@ -234,6 +245,18 @@ export default class Game {
         return this.planet.position
     }
     
+    checkCurrentPlanet(){
+        
+        if (this.planet.meshPlanet.getChildren()[0].intersectsMesh(this.player.mesh,false)){
+            console.log("je suis dans la planete spherique")
+            this.currentPlanet = this.planet;
+        }
 
+        if(this.planet2.mesh.getChildren()[0].intersectsMesh(this.player.mesh,false)){
+            console.log("planet cubique")
+            this.currentPlanet = this.planet2;
+        }
+
+    }
 }
 export {DEBUG_MODE};

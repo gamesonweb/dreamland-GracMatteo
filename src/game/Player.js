@@ -12,6 +12,7 @@ import Score from './Score.js';
 const SPEED = 5;
 const SPEED_ROTATION = 5;
 const JUMP_FORCE = 10;
+const SUPER_JUMP = 20;
 
 const pathPlayerGLB = "/assets/";
 const PlayerGLB = "angryAntoine.glb"; 
@@ -60,7 +61,7 @@ class Player {
     this.mesh = result.meshes[0];
     this.mesh.name = "player";
     // this.mesh = MeshBuilder.CreateBox("player", {size: 1}, GlobalManager.scene);
-    this.mesh.position = new Vector3(20, 45, 20);
+    this.mesh.position = new Vector3(20, 20, 20);
     this.mesh.ellipsoid = new Vector3(0.5, 0.5, 0.5);
     this.mesh.ellipsoidOffset = new Vector3(0.0, 0.0, 0.0);
     
@@ -146,12 +147,25 @@ class Player {
       this.jump();
 
     }
+
+    if (actions["buttonSquare"] !== undefined && actions["buttonSquare"] && !this.isJumping) {
+      console.log("Jump triggered by gamepad button X");
+      this.superJump();
+
+    }
+
   }
   
   // Méthode dédiée pour déclencher le saut
   jump() {
     // Applique une impulsion dans la direction opposée à la normale (donc vers le haut)
     this.gravityVelocity = this.normalVector.scale(this.jumpForce);
+    this.isJumping = true;
+  }
+
+  superJump() {
+    // Applique une impulsion dans la direction opposée à la normale (donc vers le haut)
+    this.gravityVelocity = this.normalVector.scale(SUPER_JUMP);
     this.isJumping = true;
   }
 
@@ -201,7 +215,7 @@ class Player {
     const origin = this.mesh.position;
     //console.log(this.currentPlanet.mesh.name);
     if(this.currentPlanet.mesh.name === "planet") {
-      rayChoiced = this.currentPlanet.radius;
+      rayChoiced = this.currentPlanet.radius/2;
     }
     else {
       rayChoiced = 10;
@@ -373,14 +387,7 @@ class Player {
     return this.mesh.position.subtract(planet.position);
   }
   
-  // Méthode pour vérifier si le joueur est dans le champ de gravité de la planète
-  isInGravityField() {
-    if (!this.currentPlanet) return false;
-    const distVec = this.getDistPlanetPlayer(this.currentPlanet);
-    const distance = distVec.length();
-    const gravityFieldRadius = this.currentPlanet.gravityFieldRadius || 50;
-    return distance <= gravityFieldRadius;
-  }
+  
 
   /**
  * Ajuste la position du joueur pour qu'il suive les petites irrégularités de la planète.

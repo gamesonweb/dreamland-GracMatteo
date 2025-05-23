@@ -15,13 +15,14 @@ class Planet extends Object3D{
     gravity;
     gravityFieldRadius;
     position = new Vector3(0,0,0);
-
+    type;
     name = "planet";
 
-    constructor(radius,gravity,position){
+    constructor(type,radius,gravity,position){
         super();
+        this.type = type;
         this.radius = radius
-        this.gravityFieldRadius = radius * 3;
+        this.gravityFieldRadius = radius * 1.5;
         this.gravity = gravity
         this.position = position
     }
@@ -48,31 +49,49 @@ class Planet extends Object3D{
 
 
         //create sphere
-        const planet = await this.CreateSphere("planet",this.radius);
-        this.meshPlanet = planet;
-        this.meshPlanet.name = this.name;
-        //add de la texture
-        const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
-        planetTexture.diffuseTexture = new Texture("/assets/2k_mercury.jpg", GlobalManager.scene);
-        this.meshPlanet.material = planetTexture;
+        if(this.type == "sphere"){
+            const planet = await this.CreateSphere("planetSphere",this.radius);
+            this.meshPlanet = planet;
+            this.meshPlanet.position = this.position;
+            this.meshPlanet.name = this.name;
+            //add de la texture
+            const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
+            planetTexture.diffuseTexture = new Texture("/assets/2k_mercury.jpg", GlobalManager.scene);
+            this.meshPlanet.material = planetTexture;
 
-        //create Cube
-        //this.mesh = MeshBuilder.CreateBox("cubePlanet", { size: 20 }, GlobalManager.scene);
-        //this.mesh.position = this.position;
-        //this.mesh.checkCollisions = true;
+            const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.gravityFieldRadius }, GlobalManager.scene);
+            gravityField.parent = this.meshPlanet;
+
+            // Create a transparent material for the gravity field
+            const gravityMaterial = new StandardMaterial("gravityMat", GlobalManager.scene);
+            gravityMaterial.alpha = 0.5; // Transparency
+            gravityField.material = gravityMaterial;
+        }
         
+        if(this.type == "cube"){
+            const planet = await this.CreateCube("planetSphere",this.radius);
+            this.meshPlanet = planet;
+            this.meshPlanet.position = this.position
+            this.meshPlanet.name = this.name;
+            //add de la texture
+            const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
+            planetTexture.diffuseTexture = new Texture("/assets/2k_mercury.jpg", GlobalManager.scene);
+            this.meshPlanet.material = planetTexture;
+
+            const gravityField = MeshBuilder.CreateBox("gravityField", { size: this.gravityFieldRadius}, GlobalManager.scene);
+            gravityField.parent = this.meshPlanet;
+
+            // Create a transparent material for the gravity field
+            const gravityMaterial = new StandardMaterial("gravityMat", GlobalManager.scene);
+            gravityMaterial.alpha = 0.5; // Transparency
+            gravityField.material = gravityMaterial;
+        }
         //create cylinder
         //this.mesh = MeshBuilder.CreateCylinder("cylinder", {diameterTop: 30, diameterBottom: 30, height: 30}, GlobalManager.scene);
         //this.mesh.position = this.position;
         //this.mesh.checkCollisions = true;
 
-        //const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.gravityFieldRadius }, GlobalManager.scene);
-        //gravityField.parent = this.mesh;
-
-        // Create a transparent material for the gravity field
-        //const gravityMaterial = new StandardMaterial("gravityMat", GlobalManager.scene);
-        //gravityMaterial.alpha = 0; // Transparency
-        //gravityField.material = gravityMaterial;
+        
 
         //add shadow
         //GlobalManager.addShadowCaster(this.mesh, true);
