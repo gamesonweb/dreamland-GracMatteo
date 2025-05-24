@@ -1,11 +1,14 @@
 // src/Level1.js
 
 import { SceneLoader, MeshBuilder, Vector3, StandardMaterial, Color3, Scene,Color4,DirectionalLight,ShadowGenerator,AxesViewer} from "@babylonjs/core";
-import { GlobalManager } from "./GlobalManager.js";
-import Planet from "./Planet.js";
-import Player from "./Player.js";
-import EtoileManager from "./EtoileManager.js";
-import { DEBUG_MODE } from "./Game.js";
+import { GlobalManager } from "../GlobalManager.js";
+import Planet from "../Planet.js";
+import Player from "../Player.js";
+import EtoileManager from "../EtoileManager.js";
+import { DEBUG_MODE } from "../Game.js";
+
+const textureMoonPath = "/assets/2k_mercury.jpg";
+
 
 export default class Level1 {
     
@@ -14,6 +17,7 @@ export default class Level1 {
     currentPlanet;
     etoileManager;
     player;
+    
     constructor() {
     
     }
@@ -62,12 +66,12 @@ export default class Level1 {
       */
       // Create a planet
       
-      const planet1 = new Planet("sphere",50,-9.8,new Vector3(0,0,0));
+      const planet1 = new Planet("sphere",50,-9.8,new Vector3(0,0,0),textureMoonPath);
       this.planets.push(planet1);
-      const planet2 = new Planet("cube",10,-5.8, new Vector3(0,50,0));
+      const planet2 = new Planet("cube",10,-5.8, new Vector3(0,50,0),textureMoonPath);
       this.planets.push(planet2);
-
-
+      const planet3 = new Planet("cylinder",10,-12.8, new Vector3(50,0,0),textureMoonPath);
+      this.planets.push(planet3);
 
       if (DEBUG_MODE){
           this.axesWorld = new AxesViewer(GlobalManager.scene, 4);

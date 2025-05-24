@@ -1,7 +1,7 @@
 import {Vector3, AxesViewer, MeshBuilder, StandardMaterial, Color3,Texture} from '@babylonjs/core';
 import {GlobalManager} from './GlobalManager.js';
 import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
-import {ArcRotateCamera, Mesh, Quaternion, Ray} from "babylonjs";
+import {ArcRotateCamera, Mesh, Quaternion, Ray, textureSizeIsObject} from "babylonjs";
 import Object3D from './Object3D.js';
 import {DEBUG_MODE} from "./Game.js";
 
@@ -16,10 +16,12 @@ class Planet extends Object3D{
     gravityFieldRadius;
     position = new Vector3(0,0,0);
     type;
+    texture;
     name = "planet";
 
-    constructor(type,radius,gravity,position){
+    constructor(type,radius,gravity,position,texture){
         super();
+        this.texture = texture;
         this.type = type;
         this.radius = radius
         this.gravityFieldRadius = radius * 1.5;
@@ -56,7 +58,7 @@ class Planet extends Object3D{
             this.meshPlanet.name = this.name;
             //add de la texture
             const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
-            planetTexture.diffuseTexture = new Texture("/assets/2k_mercury.jpg", GlobalManager.scene);
+            planetTexture.diffuseTexture = new Texture(this.texture, GlobalManager.scene);
             this.meshPlanet.material = planetTexture;
 
             const gravityField = MeshBuilder.CreateSphere("gravityField", { diameter: this.gravityFieldRadius }, GlobalManager.scene);
@@ -64,7 +66,7 @@ class Planet extends Object3D{
 
             // Create a transparent material for the gravity field
             const gravityMaterial = new StandardMaterial("gravityMat", GlobalManager.scene);
-            gravityMaterial.alpha = 0.5; // Transparency
+            gravityMaterial.alpha = 0; // Transparency
             gravityField.material = gravityMaterial;
         }
         
@@ -75,7 +77,7 @@ class Planet extends Object3D{
             this.meshPlanet.name = this.name;
             //add de la texture
             const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
-            planetTexture.diffuseTexture = new Texture("/assets/2k_mercury.jpg", GlobalManager.scene);
+            planetTexture.diffuseTexture = new Texture(this.texture, GlobalManager.scene);
             this.meshPlanet.material = planetTexture;
 
             const gravityField = MeshBuilder.CreateBox("gravityField", { size: this.gravityFieldRadius}, GlobalManager.scene);
@@ -83,7 +85,26 @@ class Planet extends Object3D{
 
             // Create a transparent material for the gravity field
             const gravityMaterial = new StandardMaterial("gravityMat", GlobalManager.scene);
-            gravityMaterial.alpha = 0.5; // Transparency
+            gravityMaterial.alpha = 0; // Transparency
+            gravityField.material = gravityMaterial;
+        }
+
+        if (this.type == "cylinder"){
+            const planet = await this.CreateCylinder("planetSphere",this.radius);
+            this.meshPlanet = planet;
+            this.meshPlanet.position = this.position
+            this.meshPlanet.name = this.name;
+            //add de la texture
+            const planetTexture = new StandardMaterial("planetTexture", GlobalManager.scene);
+            planetTexture.diffuseTexture = new Texture(this.texture, GlobalManager.scene);
+            this.meshPlanet.material = planetTexture;
+
+            const gravityField = MeshBuilder.CreateCylinder("gravityField", { diameter: this.gravityFieldRadius, height: 10 }, GlobalManager.scene);
+            gravityField.parent = this.meshPlanet;
+
+            // Create a transparent material for the gravity field
+            const gravityMaterial = new StandardMaterial("gravityMat", GlobalManager.scene);
+            gravityMaterial.alpha = 0; // Transparency
             gravityField.material = gravityMaterial;
         }
         //create cylinder

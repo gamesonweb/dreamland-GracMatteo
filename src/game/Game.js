@@ -1,10 +1,8 @@
-import {AxesViewer,KeyboardEventTypes, Scene ,Color4,MeshBuilder,Vector3,FreeCamera, StandardMaterial,HemisphericLight, Color3,ShadowGenerator, ReflectiveShadowMap, DirectionalLight, GamepadManager, Gamepad, Mesh} from '@babylonjs/core';
-import {GridMaterial} from "@babylonjs/materials";
+import {KeyboardEventTypes, GamepadManager, Gamepad} from '@babylonjs/core';
 import {Inspector} from "@babylonjs/inspector";
-import {SceneLoader} from '@babylonjs/core/Loading/sceneLoader';
 import { GlobalManager } from './GlobalManager.js';
 import * as GUI from '@babylonjs/gui';
-import Level1 from './Level1.js';
+import Level1 from './levels/Level1.js';
 import { SoundManager } from './SoundManager.js';
 
 var DEBUG_MODE = false; // Set to true to enable debug mode
@@ -19,28 +17,12 @@ export default class Game {
     canvas;
     scene;
 
-    camera;
-    light;
-    sky;
-    axesWorld;
-
     startTimer;
     
-    player;
-    planet;
-    planet2;
-    currentPlanet;
-    planetManager;
-    dist;
-
     gui;
 
     inputMap = {};
     actions = {}
-
-    sunLight;
-    
-    etoileManager;
 
     gamepadManager;
     gamepad;
@@ -95,7 +77,12 @@ export default class Game {
         this.currentLevel.update(this.currentLevel.player);
         this.onScoreUpdate(this.currentLevel.player.score.getScore());   
         this.startTimer += GlobalManager.deltaTime;
-       
+        
+        //changement de niveau simple
+        
+        if(this.currentLevel.player.score.getScore() == 10){
+            this.gotoNextLevel();
+        }
         //console.log(this.getDistPlanetPlayer(this.currentLevel.player.mesh.position,this.planet.position))
         //GlobalManager.lightTranslation();
         //console.log(SoundManager)
@@ -181,6 +168,12 @@ export default class Game {
         }
     }   
 
+    gotoNextLevel() {
+        this.currentLevel.dispose();
+        this.currentLevel = new Level2(); 
+        this.currentLevel.init();
+        this.startTimer = 0;
+    }
     
 }
 export {DEBUG_MODE};

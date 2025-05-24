@@ -70,6 +70,12 @@ class Object3D {
         return this.mesh;
     }
 
+    CreateCylinder(name,diameter){
+        this.mesh = MeshBuilder.CreateCylinder(name,{diameterTop: diameter, diameterBottom: diameter, height: diameter},GlobalManager.scene);
+        this.mesh.checkCollisions = true;
+        this.mesh.name = name;
+        return this.mesh;
+    }
 
     loadGLB(path,modele,name){
         return new Promise((resolve, reject) => {

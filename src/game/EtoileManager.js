@@ -24,11 +24,7 @@ class EtoileManager {
     }
 
     async init(planet) {
-        //ne fonctionne pas
-        //load sound
-        
-        //console.log("Etoile sound loaded", this.collectSound);
-        
+       
         this.currentPlanet = planet; // Set the current planet
         //console.log("EtoileManager initialized with planet:", this.currentPlanet);
         
