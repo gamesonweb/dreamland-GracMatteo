@@ -15,6 +15,7 @@ class Planet extends Object3D{
     gravity;
     gravityFieldRadius;
     position = new Vector3(0,0,0);
+    angleRotation = 0; // Angle of rotation around a planet
     type;
     texture;
     name = "planet";
@@ -124,12 +125,29 @@ class Planet extends Object3D{
         this.meshPlanet.rotationQuaternion = this.meshPlanet.rotationQuaternion.multiply(rotationQuaternion);
     }
 
+    circleTranslation(radius){
+        
+        // Update the position of the planet in a circular path
+        const circleTranslation = new Vector3(
+            radius * Math.cos(this.angleRotation),
+            0, // Assuming the planet moves in the XZ plane
+            radius * Math.sin(this.angleRotation)
+        );
+
+        this.meshPlanet.position = circleTranslation;
+        
+    }
+
     update(){
         this.rotate();
         
     }
 
-
+    dispose(){
+        if(this.meshPlanet){
+            this.meshPlanet.dispose();
+        }
+    }
 }
 export default Planet;
 

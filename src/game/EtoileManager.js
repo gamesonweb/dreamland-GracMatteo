@@ -94,6 +94,15 @@ class EtoileManager {
         //console.log("etoiles",this.etoiles.length);
     }
 
+    dispose() {
+        this.etoiles.forEach(etoile => {
+            etoile.meshEtoile.dispose();
+        });
+        this.etoiles = []; // Clear the array of stars
+        if(this.collectSound) {
+            this.collectSound.dispose(); // Dispose of the sound if it exists
+        }
+    }
 
 }export default EtoileManager;
     

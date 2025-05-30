@@ -93,4 +93,13 @@ class Object3D {
         });
     }
 
+    dispose() {
+        if (this.mesh) {
+            this.mesh.dispose();
+        }
+        if (this.axies) {
+            this.axies.dispose();
+        }
+    }
+
 }export default Object3D;

@@ -1,4 +1,4 @@
 
-class Level2 {
+export default class Level2 {
 
 }

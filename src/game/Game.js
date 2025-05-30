@@ -3,6 +3,7 @@ import {Inspector} from "@babylonjs/inspector";
 import { GlobalManager } from './GlobalManager.js';
 import * as GUI from '@babylonjs/gui';
 import Level1 from './levels/Level1.js';
+import Level2 from './levels/Level2.js';
 import { SoundManager } from './SoundManager.js';
 
 var DEBUG_MODE = false; // Set to true to enable debug mode
@@ -42,7 +43,8 @@ export default class Game {
         this.initKeyboard();
         this.initGamepad();
         // a faire gerer pas le GameManager ???
-        this.initGUI(this.currentLevel.player.score);
+        //this.initGUI(this.currentLevel.player.score);
+        GlobalManager.initGUI(this.currentLevel.player.score.getScore());
         GlobalManager.engine.hideLoadingUI();
         SoundManager.playMusic("music",music)
     }
@@ -75,12 +77,12 @@ export default class Game {
         //rajouter les updates de toutes les entités
         this.currentLevel.player.update(this.inputMap,this.actions,this.currentLevel.currentPlanet);
         this.currentLevel.update(this.currentLevel.player);
-        this.onScoreUpdate(this.currentLevel.player.score.getScore());   
+        GlobalManager.onScoreUpdate(this.currentLevel.player.score.getScore());   
         this.startTimer += GlobalManager.deltaTime;
         
         //changement de niveau simple
         
-        if(this.currentLevel.player.score.getScore() == 10){
+        if(this.currentLevel.player.score.getScore() == 3000){
             this.gotoNextLevel();
         }
         //console.log(this.getDistPlanetPlayer(this.currentLevel.player.mesh.position,this.planet.position))
@@ -96,7 +98,7 @@ export default class Game {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN :
                     this.inputMap[kbInfo.event.code] = true;
-                    //console.log("keyDOWN"+kbInfo.event.code);
+                    console.log("keyDOWN"+kbInfo.event.code);
                     break;
                 case KeyboardEventTypes.KEYUP :
                     this.inputMap[kbInfo.event.code] = false;
@@ -145,28 +147,6 @@ export default class Game {
             //console.log(this.actions)
         }
     }
-
-    initGUI() {
-        this.gui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        const panel = new GUI.StackPanel("panel");
-        panel.width = "220px";
-        panel.height = "100px";
-        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-        this.gui.addControl(panel);
-        
-        const textBlock = new GUI.TextBlock("text", "Score : " + this.currentLevel.player.score.getScore());
-        textBlock.color = "white";
-        textBlock.fontSize = 24;
-        panel.addControl(textBlock);
-    }
-
-    onScoreUpdate(score) {
-        const textBlock = this.gui.getControlByName("text");
-        if (textBlock) {
-            textBlock.text = "Score : " + score;
-        }
-    }   
 
     gotoNextLevel() {
         this.currentLevel.dispose();
