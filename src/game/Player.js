@@ -238,13 +238,13 @@ class Player {
       this.moveDirection.scaleInPlace(SPEED * GlobalManager.deltaTime);
       finalMove.addInPlace(this.moveDirection);
 
-      if (!this.bWasWalking){
+      if (!this.bWasWalking && !this.isJumping){
         this.walkAnimation.start(true, 2.0, this.walkAnimation.from, this.walkAnimation.to, false);
       }
 
     }
     else {            
-      if (this.bWasWalking){
+      if (this.bWasWalking) {
         this.walkAnimation.stop();
         this.idleAnimation.start(true, 2.0, this.idleAnimation.from, this.idleAnimation.to, false);
       }
